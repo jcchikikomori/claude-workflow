@@ -90,7 +90,7 @@ Each analysis is stateless and deterministic: same input produces same output vi
   "purpose": "Essential purpose of request (1-2 sentences)",
   "scale": "small|medium|large",
   "confidence": "confirmed|provisional",
-  "affectedFiles": ["path/to/file1.ts", "path/to/file2.ts"],
+  "affectedFiles": ["path/to/file1", "path/to/file2"],
   "affectedLayers": ["backend", "frontend"],
   "fileCount": 3,
   "adrRequired": true,

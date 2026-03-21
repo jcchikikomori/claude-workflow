@@ -133,7 +133,7 @@ For each claim with collected evidence:
       "severity": "critical|major|minor",
       "claim": "Brief claim description",
       "documentLocation": "PRD.md:45",
-      "codeLocation": "src/auth.ts:120",
+      "codeLocation": "src/auth/service:120",
       "classification": "What was found"
     }
   ],

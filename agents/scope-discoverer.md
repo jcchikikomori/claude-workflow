@@ -156,7 +156,7 @@ Each discovered unit should represent a Vertical Slice (see implementation-appro
       "relatedFiles": ["src/feature/*"],
       "dependencies": ["UNIT-002"],
       "technicalProfile": {
-        "primaryModules": ["src/auth/service.ts", "src/auth/controller.ts"],
+        "primaryModules": ["src/auth/service", "src/auth/controller"],
         "publicInterfaces": ["AuthService.login()", "AuthController.handleLogin()"],
         "dataFlowSummary": "Request → Controller → Service → Repository → DB",
         "infrastructureDeps": ["database", "redis-cache"]
