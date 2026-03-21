@@ -1,15 +1,6 @@
 # Security Check Patterns
 
 Last reviewed: 2026-03-21
-Review cycle: Semi-annual
-Next review: 2026-09-21
-
-## Update Triggers
-
-Update this file when any of the following occurs:
-- OWASP Top 10 or LLM Top 10 publishes a new version
-- A critical vulnerability (CVSS 9.0+) in widely-used frameworks introduces a new attack pattern (not a specific CVE patch, but a new category of flaw)
-- Major AI coding security research publishes findings that change recommended review patterns
 
 ## Stable Patterns
 
