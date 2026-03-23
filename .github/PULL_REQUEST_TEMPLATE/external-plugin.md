@@ -11,7 +11,7 @@
 
 ### Why does it fit this marketplace's focus?
 
-<!-- This is the most important part. Explain how your plugin relates to control, reliability, safety, or quality enforcement in agentic coding. -->
+<!-- This is the most important part. Explain how your plugin relates to product quality, control, reliability, safety, or quality enforcement in agentic coding. -->
 
 ### How have you tested it?
 

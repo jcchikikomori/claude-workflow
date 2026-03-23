@@ -18,6 +18,7 @@ This marketplace includes the following plugins:
 - **dev-workflows-frontend** - React/TypeScript specialized workflows
 
 **Optional add-ons** (enhance core plugins):
+- **[claude-code-discover](https://github.com/shinpr/claude-code-discover)** - Turns feature ideas into evidence-backed PRDs
 - **[metronome](https://github.com/shinpr/metronome)** - Detects shortcut-taking behavior and nudges Claude to proceed step by step
 - **[dev-workflows-governance](https://github.com/francismiles1/dev-workflows-governance)** - Enforces TIDY stage and human signoff checkpoint before deployment
 
@@ -75,6 +76,9 @@ The fullstack recipes create separate Design Docs per layer (backend + frontend)
 
 ### External Plugins
 ```bash
+# Install claude-code-discover (product discovery before implementation)
+/plugin install claude-code-discover@claude-code-workflows
+
 # Install metronome (prevents shortcut-taking behavior)
 /plugin install metronome@claude-code-workflows
 
@@ -508,7 +512,7 @@ A: `dev-skills` provides only coding best practices as skills (`coding-principle
 
 ## 🔌 Contributing External Plugins
 
-This marketplace focuses on plugins that improve **control, reliability, and safety** in agentic coding. If your plugin helps developers trust and manage AI coding agents in production workflows, we'd like to hear from you.
+This marketplace supports the full lifecycle of building products with AI — from product quality and discovery through implementation control and verification. If your plugin helps developers build better products with AI coding agents, we'd like to hear from you.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for submission guidelines and acceptance criteria.
 

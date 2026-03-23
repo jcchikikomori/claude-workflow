@@ -6,19 +6,21 @@ This marketplace has a specific focus. Please read this guide carefully before s
 
 ## Our Philosophy
 
-In agentic coding, control and reliability matter more than convenience. This marketplace exists to bring together plugins that share that priority.
+This marketplace exists to support the full lifecycle of building products with AI — from understanding what to build, through building it reliably, to verifying the result.
 
 We curate plugins that make AI-assisted development **reliable and controlled** — not flashy or viral. Production-readiness and safety guardrails take priority over convenience or impressive demos.
 
-If your plugin helps developers trust and control AI coding agents in production workflows, it likely belongs here.
+If your plugin helps developers build better products with AI coding agents, it likely belongs here.
 
 ## What We Accept
 
 Plugins that fall into these categories:
 
+- **Product quality** — Tools that help validate what to build before building it (discovery, hypothesis testing, value validation)
 - **Behavior control** — Detecting and correcting undesirable agent behavior (e.g., [metronome](https://github.com/shinpr/metronome))
 - **Quality enforcement** — Automated checks, guardrails, or gates that prevent regressions
 - **Workflow orchestration** — Structured, multi-step processes that ensure consistency
+- **Governance** — Safety gates, signoff checkpoints, and audit trails that enforce accountability
 - **Safety and verification** — Tools that validate outputs, catch drift, or enforce constraints
 
 ## Out of Scope
@@ -26,7 +28,7 @@ Plugins that fall into these categories:
 To keep the collection focused, we do not accept:
 
 - General productivity tools (formatters, snippet generators, etc.)
-- Wrappers around external APIs without a control/safety angle
+- Wrappers around external APIs without a quality/safety angle
 - Plugins primarily focused on UI/UX or visual output
 - Unmaintained or experimental plugins without real-world usage
 - Plugins that duplicate functionality already in this marketplace
@@ -54,6 +56,7 @@ Not sure if your plugin fits? Open an issue to discuss before spending time on a
        "url": "https://github.com/your-org/your-plugin.git"
      },
      "description": "One-line description of what it does",
+     "category": "product-quality | behavior-control | quality-enforcement | workflow-orchestration | governance | safety-verification",
      "homepage": "https://github.com/your-org/your-plugin"
    }
    ```
