@@ -223,7 +223,7 @@ All workflow entry points use the `recipe-` prefix to distinguish them from know
 | `/recipe-diagnose` | Investigate problems and derive solutions | Bug investigation, root cause analysis |
 | `/recipe-update-doc` | Update existing design documents with review | Spec changes, review feedback, document maintenance |
 
-> **Tip**: Both plugins share `/recipe-task`, `/recipe-diagnose`, and `/recipe-update-doc` with the same functionality. For reverse engineering, use `/recipe-reverse-engineer` with the fullstack option to generate both backend and frontend Design Docs in a single workflow.
+> **Tip**: Both plugins share `/recipe-task`, `/recipe-diagnose`, and `/recipe-update-doc`. `/recipe-update-doc` auto-detects the document's layer. If your project has frontend Design Docs, the frontend plugin is needed to update them. For reverse engineering, use `/recipe-reverse-engineer` with the fullstack option to generate both backend and frontend Design Docs in a single workflow.
 
 ---
 
@@ -246,8 +246,6 @@ These agents work the same way whether you're building a REST API or a React app
 | **investigator** | Collects evidence, enumerates hypotheses, builds evidence matrix for problem diagnosis |
 | **verifier** | Validates investigation results using ACH and Devil's Advocate methods |
 | **solver** | Generates solutions with tradeoff analysis and implementation steps |
-| **scope-discoverer** | Discovers functional scope from codebase for reverse engineering |
-| **code-verifier** | Validates consistency between documentation and code implementation |
 | **security-reviewer** | Reviews implementation for security compliance after all tasks complete |
 
 ### Backend-Specific Agents (dev-workflows)
@@ -256,6 +254,8 @@ These agents work the same way whether you're building a REST API or a React app
 |-------|--------------|
 | **prd-creator** | Writes product requirement docs for complex features |
 | **technical-designer** | Plans architecture and tech stack decisions |
+| **scope-discoverer** | Discovers functional scope from codebase for reverse engineering |
+| **code-verifier** | Validates consistency between documentation and code implementation |
 | **acceptance-test-generator** | Creates E2E and integration test scaffolds from requirements |
 | **integration-test-reviewer** | Reviews integration/E2E tests for skeleton compliance and quality |
 | **task-executor** | Implements backend features with TDD |
