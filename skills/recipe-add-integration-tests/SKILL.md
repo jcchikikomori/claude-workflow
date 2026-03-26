@@ -1,12 +1,10 @@
 ---
 name: recipe-add-integration-tests
-description: Add integration/E2E tests to existing backend codebase using Design Doc
+description: Add integration/E2E tests to existing codebase using Design Docs
 disable-model-invocation: true
 ---
 
-**Context**: Test addition workflow for existing backend implementations
-
-**Scope**: Backend only (acceptance-test-generator supports backend only)
+**Context**: Test addition workflow for existing implementations (backend, frontend, or fullstack)
 
 ## Orchestrator Definition
 
@@ -23,11 +21,11 @@ disable-model-invocation: true
 - Test review → delegate to integration-test-reviewer
 - Quality checks → delegate to quality-fixer
 
-Design Doc path: $ARGUMENTS
+Document paths: $ARGUMENTS
 
 ## Prerequisites
 
-- Design Doc must exist (created manually or via reverse-engineer)
+- At least one Design Doc must exist (created manually or via reverse-engineer)
 - Existing implementation to test
 
 ## Execution Flow
@@ -36,30 +34,52 @@ Design Doc path: $ARGUMENTS
 
 Execute Skill: documentation-criteria (for task file template in Step 3)
 
-### Step 1: Validate Design Doc
+### Step 1: Discover and Validate Documents
 
 ```bash
-# Verify Design Doc exists
-ls $ARGUMENTS || ls docs/design/*.md | grep -v template | tail -1
+# Verify at least one document path was provided
+test -n "$ARGUMENTS" || { echo "ERROR: No document paths provided"; exit 1; }
+
+# Verify provided paths exist
+ls $ARGUMENTS
+
+# Discover additional documents
+ls docs/design/*.md 2>/dev/null | grep -v template
+ls docs/ui-spec/*.md 2>/dev/null
 ```
+
+Classify discovered documents by filename:
+- Filename contains `backend` → **Design Doc (backend)**
+- Filename contains `frontend` → **Design Doc (frontend)**
+- Located in `docs/ui-spec/` → **UI Spec** (optional)
+- None of the above → treat as single-layer Design Doc
 
 ### Step 2: Skeleton Generation
 
 Invoke acceptance-test-generator using Agent tool:
 - `subagent_type`: "dev-workflows:acceptance-test-generator"
 - `description`: "Generate test skeletons"
-- `prompt`: "Generate test skeletons from Design Doc at [path from Step 1]"
+- `prompt`: List only the documents that exist from Step 1:
+  ```
+  Generate test skeletons from the following documents:
+  - Design Doc (backend): [path]    ← include only if exists
+  - Design Doc (frontend): [path]   ← include only if exists
+  - UI Spec: [path]                 ← include only if exists
+  ```
 
 **Expected output**: `generatedFiles` containing integration and e2e paths
 
-### Step 3: Create Task File [GATE]
+### Step 3: Create Task Files [GATE]
 
-Create task file at: `docs/plans/tasks/integration-tests-YYYYMMDD.md`
+Create one task file per layer, using the monorepo-flow.md naming convention for deterministic agent routing:
+- Backend skeletons exist → `docs/plans/tasks/integration-tests-backend-task-YYYYMMDD.md`
+- Frontend skeletons exist → `docs/plans/tasks/integration-tests-frontend-task-YYYYMMDD.md`
+- Single-layer (no backend/frontend distinction) → `docs/plans/tasks/integration-tests-backend-task-YYYYMMDD.md`
 
-**Template**:
+**Template** (per task file):
 ```markdown
 ---
-name: Implement integration tests for [feature name]
+name: Implement [layer] integration tests for [feature name]
 type: test-implementation
 ---
 
@@ -69,8 +89,8 @@ Implement test cases defined in skeleton files.
 
 ## Target Files
 
-- Skeleton: [path from Step 2 generatedFiles]
-- Design Doc: [path from Step 1]
+- Skeleton: [layer-specific paths from Step 2 generatedFiles]
+- Design Doc: [layer-specific Design Doc from Step 1]
 
 ## Tasks
 
@@ -85,14 +105,17 @@ Implement test cases defined in skeleton files.
 - No quality issues
 ```
 
-**Output**: "Task file created at [path]. Ready for Step 4."
+**Output**: "Task file(s) created at [path(s)]. Ready for Step 4."
 
 ### Step 4: Test Implementation
 
-Invoke task-executor using Agent tool:
-- `subagent_type`: "dev-workflows:task-executor"
+For each task file from Step 3, invoke task-executor routed by filename pattern (per monorepo-flow.md):
+- `*-backend-task-*` → `subagent_type`: "dev-workflows:task-executor"
+- `*-frontend-task-*` → `subagent_type`: "dev-workflows-frontend:task-executor-frontend"
 - `description`: "Implement integration tests"
-- `prompt`: "Task file: docs/plans/tasks/integration-tests-YYYYMMDD.md. Implement tests following the task file."
+- `prompt`: "Task file: [task file path from Step 3]. Implement tests following the task file."
+
+Execute one task file at a time through Steps 4→5→6→7 before starting the next.
 
 **Expected output**: `status`, `testsAdded`
 
@@ -101,7 +124,7 @@ Invoke task-executor using Agent tool:
 Invoke integration-test-reviewer using Agent tool:
 - `subagent_type`: "dev-workflows:integration-test-reviewer"
 - `description`: "Review test quality"
-- `prompt`: "Review test quality. Test files: [paths from Step 4 testsAdded]. Skeleton files: [paths from Step 2 generatedFiles]"
+- `prompt`: "Review test quality. Test files: [paths from Step 4 testsAdded]. Skeleton files: [layer-specific paths from Step 2 generatedFiles matching current task's layer]"
 
 **Expected output**: `status` (approved/needs_revision), `requiredFixes`
 
@@ -111,15 +134,17 @@ Check Step 5 result:
 - `status: approved` → Mark complete, proceed to Step 7
 - `status: needs_revision` → Invoke task-executor with requiredFixes, then return to Step 5
 
-Invoke task-executor using Agent tool:
-- `subagent_type`: "dev-workflows:task-executor"
+Invoke task-executor routed by task filename pattern:
+- `*-backend-task-*` → `subagent_type`: "dev-workflows:task-executor"
+- `*-frontend-task-*` → `subagent_type`: "dev-workflows-frontend:task-executor-frontend"
 - `description`: "Fix review findings"
 - `prompt`: "Fix the following issues in test files: [requiredFixes from Step 5]"
 
 ### Step 7: Quality Check
 
-Invoke quality-fixer using Agent tool:
-- `subagent_type`: "dev-workflows:quality-fixer"
+Invoke quality-fixer routed by task filename pattern:
+- `*-backend-task-*` → `subagent_type`: "dev-workflows:quality-fixer"
+- `*-frontend-task-*` → `subagent_type`: "dev-workflows-frontend:quality-fixer-frontend"
 - `description`: "Final quality assurance"
 - `prompt`: "Final quality assurance for test files added in this workflow. Run all tests and verify coverage."
 
