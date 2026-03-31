@@ -108,8 +108,8 @@ Decompose tasks based on implementation strategy patterns determined in implemen
    **Principles**:
    - Every task must have at least one Investigation Target (even if just the Design Doc)
    - Investigation Targets are **file paths** that the executor will Read — not actions to take
-   - Be specific with file paths: `src/auth/login`, `docs/design/auth.md` — not "the auth module" or "related code"
-   - When the target is a section within a file, write the file path and add a search hint: `docs/design/auth.md (§ Auth Flow)` or `src/auth/login (authenticateUser function)`
+   - Be specific with file paths: `src/orders/checkout`, `docs/design/payment.md` — not "the order module" or "related code"
+   - When the target is a section within a file, write the file path and add a search hint: `docs/design/payment.md (§ Payment Flow)` or `src/orders/checkout (processOrder function)`
    - When test skeletons exist for the task, always include them as Investigation Targets
 
 7. **Implementation Pattern Consistency**
