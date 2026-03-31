@@ -54,21 +54,23 @@ ROI Score = (Business Value × User Frequency + Legal Requirement × 10 + Defect
 Each test MUST include the following annotations:
 
 ```
-// AC: [Original acceptance criteria text]
-// Behavior: [Trigger] → [Process] → [Observable Result]
-// @category: core-functionality | integration | edge-case | e2e
-// @dependency: none | [component names] | full-system
-// @complexity: low | medium | high
-// ROI: [score]
+AC: [Original acceptance criteria text]
+Behavior: [Trigger] → [Process] → [Observable Result]
+@category: core-functionality | integration | edge-case | e2e
+@dependency: none | [component names] | full-system
+@complexity: low | medium | high
+ROI: [score]
 ```
+
+Use the project's comment syntax to wrap these annotations (e.g., `//` for C-family, `#` for Python/Ruby/Shell).
 
 ### Verification Items (Optional)
 
 When verification points need explicit enumeration:
 ```
-// Verification items:
-// - [Item 1]
-// - [Item 2]
+Verification items:
+- [Item 1]
+- [Item 2]
 ```
 
 ## EARS Format Mapping

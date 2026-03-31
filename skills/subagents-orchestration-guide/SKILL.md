@@ -57,13 +57,15 @@ The following subagents are available:
 
 ### Document Creation Agents
 6. **requirement-analyzer**: Requirement analysis and work scale determination
-7. **prd-creator**: Product Requirements Document creation
-8. **ui-spec-designer**: UI Specification creation from PRD and optional prototype code (frontend/fullstack features)
-9. **technical-designer**: ADR/Design Doc creation
-10. **work-planner**: Work plan creation from Design Doc and test skeletons
-11. **document-reviewer**: Single document quality and rule compliance check
-12. **design-sync**: Design Doc consistency verification across multiple documents
-13. **acceptance-test-generator**: Generate integration and E2E test skeletons from Design Doc ACs
+7. **codebase-analyzer**: Analyze existing codebase to produce focused guidance for technical design
+8. **prd-creator**: Product Requirements Document creation
+9. **ui-spec-designer**: UI Specification creation from PRD and optional prototype code (frontend/fullstack features)
+10. **technical-designer**: ADR/Design Doc creation
+11. **work-planner**: Work plan creation from Design Doc and test skeletons
+12. **document-reviewer**: Single document quality and rule compliance check
+13. **code-verifier**: Verify Design Doc claims against existing codebase (used pre-review in design flow)
+14. **design-sync**: Design Doc consistency verification across multiple documents
+15. **acceptance-test-generator**: Generate integration and E2E test skeletons from Design Doc ACs
 
 ## Orchestration Principles
 
@@ -147,6 +149,11 @@ Construct the prompt from the agent's Input Parameters section and the deliverab
 - description: "Requirement analysis"
 - prompt: "Requirements: [user requirements]. Context: [any relevant context]. Perform requirement analysis and scale determination."
 
+### Call Example (codebase-analyzer)
+- subagent_type: "codebase-analyzer"
+- description: "Codebase analysis"
+- prompt: "requirement_analysis: [JSON from requirement-analyzer]. prd_path: [path if exists]. requirements: [original user requirements]. Analyze the existing codebase and produce design guidance."
+
 ### Call Example (task-executor)
 - subagent_type: "task-executor"
 - description: "Task execution"
@@ -156,6 +163,8 @@ Construct the prompt from the agent's Input Parameters section and the deliverab
 
 Subagents respond in JSON format. Key fields for orchestrator decisions:
 - **requirement-analyzer**: scale, confidence, affectedLayers, adrRequired, scopeDependencies, questions
+- **codebase-analyzer**: analysisScope.categoriesDetected, dataModel.detected, focusAreas[], existingElements count, limitations
+- **code-verifier**: (in design flow) consistencyScore, discrepancies[], reverseCoverage (including dataOperationsInCode, testBoundariesSectionPresent)
 - **task-executor**: status (escalation_needed/completed), escalation_type (design_compliance_violation/similar_function_found/investigation_target_not_found/out_of_scope_file), testsAdded, requiresTestReview
 - **quality-fixer**: status (approved/blocked). Discriminate blocked type by `reason` field: `"Cannot determine due to unclear specification"` → read `blockingIssues[]` for specification details; `"Execution prerequisites not met"` → read `missingPrerequisites[]` with `resolutionSteps` — present these to the user as actionable next steps
 - **document-reviewer**: approvalReady (true/false)
@@ -201,7 +210,7 @@ Criteria for timing when to call each agent:
 When receiving new features or change requests, start with requirement-analyzer.
 According to scale determination:
 
-### Large Scale (6+ Files) - 11 Steps (backend) / 13 Steps (frontend/fullstack)
+### Large Scale (6+ Files) - 13 Steps (backend) / 15 Steps (frontend/fullstack)
 
 1. requirement-analyzer → Requirement analysis + Check existing PRD **[Stop]**
 2. prd-creator → PRD creation
@@ -210,24 +219,28 @@ According to scale determination:
 5. **(frontend/fullstack only)** document-reviewer → UI Spec review **[Stop: UI Spec Approval]**
 6. technical-designer → ADR creation (if architecture/technology/data flow changes)
 7. document-reviewer → ADR review (if ADR created) **[Stop: ADR Approval]**
-8. technical-designer → Design Doc creation
-9. document-reviewer → Design Doc review
-10. design-sync → Consistency verification **[Stop: Design Doc Approval]**
-11. acceptance-test-generator → Test skeleton generation, pass to work-planner (*1)
-12. work-planner → Work plan creation **[Stop: Batch approval]**
-13. task-decomposer → Autonomous execution → Completion report
+8. codebase-analyzer → Codebase analysis (pass requirement-analyzer output + PRD path)
+9. technical-designer → Design Doc creation (pass codebase-analyzer output as additional context)
+10. code-verifier → Verify Design Doc against existing code (doc_type: design-doc)
+11. document-reviewer → Design Doc review (pass code-verifier results as code_verification)
+12. design-sync → Consistency verification **[Stop: Design Doc Approval]**
+13. acceptance-test-generator → Test skeleton generation, pass to work-planner (*1)
+14. work-planner → Work plan creation **[Stop: Batch approval]**
+15. task-decomposer → Autonomous execution → Completion report
 
-### Medium Scale (3-5 Files) - 7 Steps (backend) / 9 Steps (frontend/fullstack)
+### Medium Scale (3-5 Files) - 9 Steps (backend) / 11 Steps (frontend/fullstack)
 
 1. requirement-analyzer → Requirement analysis **[Stop]**
-2. **(frontend/fullstack only)** Ask user for prototype code → ui-spec-designer → UI Spec creation
-3. **(frontend/fullstack only)** document-reviewer → UI Spec review **[Stop: UI Spec Approval]**
-4. technical-designer → Design Doc creation
-5. document-reviewer → Design Doc review
-6. design-sync → Consistency verification **[Stop: Design Doc Approval]**
-7. acceptance-test-generator → Test skeleton generation, pass to work-planner (*1)
-8. work-planner → Work plan creation **[Stop: Batch approval]**
-9. task-decomposer → Autonomous execution → Completion report
+2. codebase-analyzer → Codebase analysis (pass requirement-analyzer output)
+3. **(frontend/fullstack only)** Ask user for prototype code → ui-spec-designer → UI Spec creation
+4. **(frontend/fullstack only)** document-reviewer → UI Spec review **[Stop: UI Spec Approval]**
+5. technical-designer → Design Doc creation (pass codebase-analyzer output as additional context)
+6. code-verifier → Verify Design Doc against existing code (doc_type: design-doc)
+7. document-reviewer → Design Doc review (pass code-verifier results as code_verification)
+8. design-sync → Consistency verification **[Stop: Design Doc Approval]**
+9. acceptance-test-generator → Test skeleton generation, pass to work-planner (*1)
+10. work-planner → Work plan creation **[Stop: Batch approval]**
+11. task-decomposer → Autonomous execution → Completion report
 
 ### Small Scale (1-2 Files) - 2 Steps
 
@@ -338,6 +351,16 @@ Stop autonomous execution and escalate to user in the following cases:
    - Extract necessary information from structured responses
    - Compose commit messages from changeSummary
    - Explicitly integrate initial and additional requirements when requirements change
+
+   #### codebase-analyzer → technical-designer
+
+   **Pass to codebase-analyzer**: requirement-analyzer JSON output, PRD path (if exists), original user requirements
+   **Pass to technical-designer**: codebase-analyzer JSON output as additional context in the Design Doc creation prompt. The designer uses `focusAreas` and `dataModel` to inform the Existing Codebase Analysis section.
+
+   #### code-verifier → document-reviewer (Design Doc review)
+
+   **Pass to code-verifier**: Design Doc path (doc_type: design-doc). `code_paths` is intentionally omitted — the verifier independently discovers code scope from the document.
+   **Pass to document-reviewer**: code-verifier JSON output as `code_verification` parameter.
 
    #### *1 acceptance-test-generator → work-planner
 

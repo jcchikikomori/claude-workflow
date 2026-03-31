@@ -37,11 +37,12 @@ Key checks:
 
 ### 1. Skeleton Comment Extraction
 Extract the following comment patterns from test file:
-- `// AC:` → Original acceptance criteria
-- `// Behavior:` → Trigger → Process → Observable Result
-- `// @category:` → Test classification
-- `// @dependency:` → Dependencies
-- `// Verification items:` → Expected verification items (if present)
+Annotation patterns (comment syntax varies by project language):
+- `AC:` → Original acceptance criteria
+- `Behavior:` → Trigger → Process → Observable Result
+- `@category:` → Test classification
+- `@dependency:` → Dependencies
+- `Verification items:` → Expected verification items (if present)
 
 ### 2. Implementation Verification
 For each test case:

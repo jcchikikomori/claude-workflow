@@ -19,7 +19,7 @@ Operates in an independent context, executing autonomously until task completion
 
 ## Input Parameters
 
-- **Design Doc**: Required. Source of acceptance criteria for test skeleton generation.
+- **Design Doc**: Required. Source of acceptance criteria for test skeleton generation. When the Design Doc contains a "Test Boundaries" section, use its mock boundary decisions to determine which dependencies to mock and which to test with real implementations.
 - **UI Spec**: Optional. When provided, use screen transitions, state x display matrix, and interaction definitions as additional E2E test candidate sources. See `references/e2e-design.md` in integration-e2e-testing skill for mapping methodology.
 
 ## Core Principle: Maximum Coverage, Minimum Tests
@@ -75,7 +75,12 @@ Key points:
 
 **Principle**: AC = User-observable behavior verifiable in isolated CI environment
 
-**Output**: Filtered AC list
+**Test Boundaries Compliance**: When the Design Doc contains a "Test Boundaries" section:
+- Use the "Mock Boundary Decisions" table to determine mock scope for each test candidate
+- Components marked as "No" for mocking: annotate the test skeleton with `@real-dependency: [component]` (using the project's comment syntax) to signal non-mock setup is required
+- Record the mock/real decision in test skeleton annotations alongside existing metadata
+
+**Output**: Filtered AC list with mock boundary annotations (when Test Boundaries section exists)
 
 ### Phase 2: Candidate Enumeration (Two-Pass #1)
 
@@ -139,6 +144,8 @@ ROI calculation formula and cost table are defined in **integration-e2e-testing 
 ## Output Format
 
 ### Integration Test File
+
+The examples below use `//` comment syntax. Adapt to the project's language (e.g., `#` for Python/Ruby).
 
 ```
 // [Feature Name] Integration Test - Design Doc: [filename]

@@ -149,9 +149,7 @@ prompt: |
   doc_type: PRD
   target: $STEP_2_OUTPUT
   mode: composite
-
-  ## Code Verification Results
-  $STEP_3_OUTPUT
+  code_verification: $STEP_3_OUTPUT
 
   ## Additional Review Focus
   - Alignment between PRD claims and verification evidence
@@ -345,9 +343,7 @@ prompt: |
   doc_type: DesignDoc
   target: $STEP_7_OUTPUT (or $STEP_7a_OUTPUT / $STEP_7b_OUTPUT)
   mode: composite
-
-  ## Code Verification Results
-  $STEP_8_OUTPUT
+  code_verification: $STEP_8_OUTPUT
 
   ## Parent PRD
   $APPROVED_PRD_PATH

@@ -106,22 +106,22 @@ Gradually ensure quality based on Design Doc acceptance criteria.
 #### Step 1: Read Test Skeleton Files (Required)
 Read test skeleton files (integration tests, E2E tests) with the Read tool and extract meta information from comments.
 
-**Comment patterns to extract**:
-- `// @category:` → Test classification (core-functionality, edge-case, e2e, etc.)
-- `// @dependency:` → Dependent components (material for phase placement decisions)
-- `// @complexity:` → Complexity (high/medium/low, material for effort estimation)
-- `// ROI:` → Priority judgment
+**Comment annotation patterns to extract** (comment syntax varies by project language):
+- `@category:` → Test classification (core-functionality, edge-case, e2e, etc.)
+- `@dependency:` → Dependent components (material for phase placement decisions)
+- `@complexity:` → Complexity (high/medium/low, material for effort estimation)
+- `ROI:` → Priority judgment
 
 #### Step 2: Reflect Meta Information in Work Plan
 
 1. **Dependency-based Phase Placement**
-   - `// @dependency: none` → Place in earlier phases
-   - `// @dependency: [component name]` → Place in phase after dependent component implementation
-   - `// @dependency: full-system` → Place in final phase
+   - `@dependency: none` → Place in earlier phases
+   - `@dependency: [component name]` → Place in phase after dependent component implementation
+   - `@dependency: full-system` → Place in final phase
 
 2. **Complexity-based Effort Estimation**
-   - `// @complexity: high` → Subdivide tasks or estimate higher effort
-   - `// @complexity: low` → Consider combining multiple tests into one task
+   - `@complexity: high` → Subdivide tasks or estimate higher effort
+   - `@complexity: low` → Consider combining multiple tests into one task
 
 #### Step 3: Extract Environment Prerequisites from E2E Skeletons
 

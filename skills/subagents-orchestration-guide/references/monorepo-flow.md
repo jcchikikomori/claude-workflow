@@ -10,7 +10,7 @@ This reference defines the orchestration flow for projects spanning multiple lay
 
 ## Design Phase
 
-### Large Scale Fullstack (6+ Files) - 12 Steps
+### Large Scale Fullstack (6+ Files) - 14 Steps
 
 | Step | Agent | Purpose | Output |
 |------|-------|---------|--------|
@@ -20,27 +20,39 @@ This reference defines the orchestration flow for projects spanning multiple lay
 | 4 | (orchestrator) | Ask user for prototype code **[Stop]** | Prototype path or none |
 | 5 | ui-spec-designer | UI Spec from PRD + optional prototype | UI Spec |
 | 6 | document-reviewer | UI Spec review **[Stop]** | Approval |
-| 7 | technical-designer | **Backend** Design Doc | Backend Design Doc |
-| 8 | technical-designer-frontend | **Frontend** Design Doc (references backend Integration Points + UI Spec) | Frontend Design Doc |
-| 9 | document-reviewer ×2 | Review each Design Doc (one invocation per doc) | Reviews |
-| 10 | design-sync | Cross-layer consistency verification (source: frontend Design Doc) **[Stop]** | Sync status |
-| 11 | acceptance-test-generator | Integration/E2E test skeleton from cross-layer contracts | Test skeletons |
-| 12 | work-planner | Work plan from all Design Docs **[Stop: Batch approval]** | Work plan |
+| 7 | codebase-analyzer ×2 | Codebase analysis per layer (pass req-analyzer output + PRD path, filtered to layer) | Codebase guidance per layer |
+| 8 | technical-designer | **Backend** Design Doc (with backend codebase-analyzer context) | Backend Design Doc |
+| 9 | technical-designer-frontend | **Frontend** Design Doc (with frontend codebase-analyzer context + backend Integration Points + UI Spec) | Frontend Design Doc |
+| 10 | code-verifier ×2 | Verify each Design Doc against existing code | Verification results |
+| 11 | document-reviewer ×2 | Review each Design Doc (with code-verifier results as code_verification) | Reviews |
+| 12 | design-sync | Cross-layer consistency verification (source: frontend Design Doc) **[Stop]** | Sync status |
+| 13 | acceptance-test-generator | Integration/E2E test skeleton from cross-layer contracts | Test skeletons |
+| 14 | work-planner | Work plan from all Design Docs **[Stop: Batch approval]** | Work plan |
 
-### Medium Scale Fullstack (3-5 Files) - 10 Steps
+### Medium Scale Fullstack (3-5 Files) - 12 Steps
 
 | Step | Agent | Purpose | Output |
 |------|-------|---------|--------|
 | 1 | requirement-analyzer | Requirement analysis + scale determination **[Stop]** | Requirements + scale |
-| 2 | (orchestrator) | Ask user for prototype code **[Stop]** | Prototype path or none |
-| 3 | ui-spec-designer | UI Spec from requirements + optional prototype | UI Spec |
-| 4 | document-reviewer | UI Spec review **[Stop]** | Approval |
-| 5 | technical-designer | **Backend** Design Doc | Backend Design Doc |
-| 6 | technical-designer-frontend | **Frontend** Design Doc (references backend Integration Points + UI Spec) | Frontend Design Doc |
-| 7 | document-reviewer ×2 | Review each Design Doc (one invocation per doc) | Reviews |
-| 8 | design-sync | Cross-layer consistency verification (source: frontend Design Doc) **[Stop]** | Sync status |
-| 9 | acceptance-test-generator | Integration/E2E test skeleton from cross-layer contracts | Test skeletons |
-| 10 | work-planner | Work plan from all Design Docs **[Stop: Batch approval]** | Work plan |
+| 2 | codebase-analyzer ×2 | Codebase analysis per layer (pass req-analyzer output, filtered to layer) | Codebase guidance per layer |
+| 3 | (orchestrator) | Ask user for prototype code **[Stop]** | Prototype path or none |
+| 4 | ui-spec-designer | UI Spec from requirements + optional prototype | UI Spec |
+| 5 | document-reviewer | UI Spec review **[Stop]** | Approval |
+| 6 | technical-designer | **Backend** Design Doc (with backend codebase-analyzer context) | Backend Design Doc |
+| 7 | technical-designer-frontend | **Frontend** Design Doc (with frontend codebase-analyzer context + backend Integration Points + UI Spec) | Frontend Design Doc |
+| 8 | code-verifier ×2 | Verify each Design Doc against existing code | Verification results |
+| 9 | document-reviewer ×2 | Review each Design Doc (with code-verifier results as code_verification) | Reviews |
+| 10 | design-sync | Cross-layer consistency verification (source: frontend Design Doc) **[Stop]** | Sync status |
+| 11 | acceptance-test-generator | Integration/E2E test skeleton from cross-layer contracts | Test skeletons |
+| 12 | work-planner | Work plan from all Design Docs **[Stop: Batch approval]** | Work plan |
+
+### Parallelization in Multi-Agent Steps
+
+Steps marked with ×2 (codebase-analyzer ×2, code-verifier ×2, document-reviewer ×2) invoke the agent once per layer. These invocations are independent and can run in parallel when the orchestrator supports concurrent Agent tool calls.
+
+### Codebase Analysis Before Design Doc Creation
+
+Before each Design Doc creation, invoke codebase-analyzer with the requirement-analyzer output filtered to the relevant layer's affected files. Pass the codebase-analyzer output to the corresponding technical-designer invocation as additional context.
 
 ### Layer Context in Design Doc Creation
 
@@ -49,12 +61,14 @@ When invoking technical-designer for each layer, pass explicit context. Template
 **Large Scale (PRD available)** — Backend Design Doc:
 ```
 Create a backend Design Doc from PRD at [path].
+Codebase analysis: [JSON from codebase-analyzer for backend layer]
 Focus on: API contracts, data layer, business logic, service architecture.
 ```
 
 **Large Scale (PRD available)** — Frontend Design Doc:
 ```
 Create a frontend Design Doc from PRD at [path].
+Codebase analysis: [JSON from codebase-analyzer for frontend layer]
 Reference backend Design Doc at [path] for API contracts and Integration Points.
 Reference UI Spec at [path] for component structure and state design.
 Focus on: component hierarchy, state management, UI interactions, data fetching.
@@ -64,6 +78,7 @@ Focus on: component hierarchy, state management, UI interactions, data fetching.
 ```
 Create a backend Design Doc based on the following requirements:
 [Pass requirement-analyzer output including purpose, affectedFiles, affectedLayers, technicalConsiderations]
+Codebase analysis: [JSON from codebase-analyzer for backend layer]
 Focus on: API contracts, data layer, business logic, service architecture.
 ```
 
@@ -71,6 +86,7 @@ Focus on: API contracts, data layer, business logic, service architecture.
 ```
 Create a frontend Design Doc based on the following requirements:
 [Pass requirement-analyzer output including purpose, affectedFiles, affectedLayers, technicalConsiderations]
+Codebase analysis: [JSON from codebase-analyzer for frontend layer]
 Reference backend Design Doc at [path] for API contracts and Integration Points.
 Reference UI Spec at [path] for component structure and state design.
 Focus on: component hierarchy, state management, UI interactions, data fetching.

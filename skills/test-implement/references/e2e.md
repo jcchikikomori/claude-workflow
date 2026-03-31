@@ -240,7 +240,7 @@ test.describe('responsive navigation', () => {
 
 ## Skeleton Comment Format
 
-E2E test skeletons follow the same annotation format as integration tests:
+E2E test skeletons follow the same annotation format as integration tests (adapt comment syntax to the project's language):
 
 ```typescript
 // AC: [Original acceptance criteria text]

@@ -13,7 +13,7 @@ disable-model-invocation: true
 **Execution Protocol**:
 1. **Delegate all work** to sub-agents — your role is to invoke sub-agents, pass data between them, and report results
 2. **Follow subagents-orchestration-guide skill design flow exactly**:
-   - Execute: requirement-analyzer → technical-designer → document-reviewer → design-sync
+   - Execute: requirement-analyzer → codebase-analyzer → technical-designer → code-verifier → document-reviewer → design-sync
    - **Stop at every `[Stop: ...]` marker** → Wait for user approval before proceeding
 3. **Scope**: Complete when design documents receive approval
 
@@ -24,7 +24,9 @@ disable-model-invocation: true
 ```
 Requirements → requirement-analyzer → [Stop: Scale determination]
                                            ↓
-                                   technical-designer → document-reviewer
+                                   codebase-analyzer → technical-designer
+                                           ↓
+                                   code-verifier → document-reviewer
                                            ↓
                                       design-sync → [Stop: Design approval]
 ```
@@ -33,8 +35,10 @@ Requirements → requirement-analyzer → [Stop: Scale determination]
 
 **Included in this skill**:
 - Requirement analysis with requirement-analyzer
+- Codebase analysis with codebase-analyzer (before technical design)
 - ADR creation (if architecture changes, new technology, or data flow changes)
 - Design Doc creation with technical-designer
+- Design Doc verification with code-verifier (before document review)
 - Document review with document-reviewer
 - Design Doc consistency verification with design-sync
 
@@ -51,12 +55,14 @@ Once requirements are moderately clarified, analyze with requirement-analyzer an
 
 Clearly present design alternatives and trade-offs.
 
-Execute the process below within design scope.
+Execute the process below within design scope. Follow subagents-orchestration-guide Call Examples for codebase-analyzer and code-verifier invocations.
 
 ## Completion Criteria
 
 - [ ] Executed requirement-analyzer and determined scale
+- [ ] Executed codebase-analyzer and passed results to technical-designer
 - [ ] Created appropriate design document (ADR or Design Doc) with technical-designer
+- [ ] Executed code-verifier on Design Doc and passed results to document-reviewer (skip for ADR-only)
 - [ ] Executed document-reviewer and addressed feedback
 - [ ] Executed design-sync for consistency verification
 - [ ] Obtained user approval for design document

@@ -71,6 +71,8 @@ When user responds to questions:
 - [ ] Identified current progress position
 - [ ] Clarified next step
 - [ ] Recognized stopping points
+- [ ] codebase-analyzer included before Design Doc creation (Medium/Large scale)
+- [ ] code-verifier included before document-reviewer for Design Doc review (Medium/Large scale)
 - [ ] **Environment check**: Can I execute per-task commit cycle?
   - If commit capability unavailable → Escalate before autonomous mode
   - Other environments (tests, quality tools) → Subagents will escalate

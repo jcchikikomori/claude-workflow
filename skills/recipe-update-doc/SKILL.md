@@ -27,8 +27,8 @@ disable-model-invocation: true
 Target document → [Stop: Confirm changes]
                         ↓
               technical-designer / technical-designer-frontend / prd-creator (update mode)
-                        ↓
-              document-reviewer → [Stop: Review approval]
+                        ↓ (Design Doc only)
+              code-verifier → document-reviewer → [Stop: Review approval]
                         ↓ (Design Doc only)
               design-sync → [Stop: Final approval]
 ```
@@ -115,6 +115,18 @@ prompt: |
 
 ### Step 5: Document Review [Stop]
 
+**For Design Doc updates only**: Before document-reviewer, invoke code-verifier:
+```
+subagent_type: code-verifier
+description: "Verify updated Design Doc"
+prompt: |
+  doc_type: design-doc
+  document_path: [path from Step 1]
+  Verify the updated Design Doc against current codebase.
+```
+
+**Store output as**: `$CODE_VERIFICATION_OUTPUT`
+
 Invoke document-reviewer:
 ```
 subagent_type: document-reviewer
@@ -125,6 +137,7 @@ prompt: |
   doc_type: [Design Doc / PRD / ADR]
   target: [path from Step 1]
   mode: standard
+  code_verification: $CODE_VERIFICATION_OUTPUT (Design Doc only, omit for PRD/ADR)
 
   Focus on:
   - Consistency of updated sections with rest of document
@@ -187,6 +200,7 @@ prompt: |
 - [ ] Identified target document
 - [ ] Clarified change content with user
 - [ ] Updated document with appropriate agent (update mode)
+- [ ] Executed code-verifier before document-reviewer (Design Doc only)
 - [ ] Executed document-reviewer and addressed feedback
 - [ ] Executed design-sync for consistency verification (Design Doc only)
 - [ ] Obtained user approval for updated document
