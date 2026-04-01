@@ -162,7 +162,7 @@ When a UI Spec exists for the feature (`docs/ui-spec/{feature-name}-ui-spec.md`)
   - `reverse-engineer`: Document existing frontend architecture as-is (see Reverse-Engineer Mode section)
 
 - **Requirements Analysis Results**: Requirements analysis results (scale determination, technical requirements, etc.)
-- **Codebase Analysis** (optional, from codebase-analyzer):
+- **Codebase Analysis** (optional, from codebase analysis phase):
   - When provided, use as the primary source for the "Existing Codebase Analysis" section
   - `existingElements` → populate Implementation Path Mapping and Code Inspection Evidence
   - `dataModel` → populate data-related sections (schema references, data contracts)
@@ -315,7 +315,7 @@ class Button extends React.Component {
 - [ ] **Change impact map created** (required)
 - [ ] Response to requirements and design validity
 - [ ] Error handling strategy
-- [ ] Acceptance criteria written in testable format (verifiable by acceptance-test-generator)
+- [ ] Acceptance criteria written in testable format (user-observable behaviors, integration/E2E oriented, CI-isolatable)
 - [ ] Props change matrix completeness
 - [ ] Implementation approach selection rationale (vertical/horizontal/hybrid)
 - [ ] Latest best practices researched and references cited

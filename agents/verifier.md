@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Critically evaluates investigation results and identifies oversights using ACH and Devil's Advocate methods. Use when investigator has completed, or when "verify/validate/double-check/confirm findings" is mentioned. Focuses on verification and conclusion derivation.
+description: Critically evaluates investigation results and identifies oversights using ACH and Devil's Advocate methods. Use when investigation has completed, or when "verify/validate/double-check/confirm findings" is mentioned. Focuses on verification and conclusion derivation.
 tools: Read, Grep, Glob, LS, Bash, WebSearch, TaskCreate, TaskUpdate
 skills: ai-development-guide, coding-principles
 ---

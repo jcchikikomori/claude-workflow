@@ -43,8 +43,8 @@ Target document → [Stop: Confirm changes]
 - Consistency verification with design-sync (Design Doc only)
 
 **Out of scope** (redirect to appropriate skills):
-- New requirement analysis → /recipe-design
-- Work planning or implementation → /recipe-plan or /recipe-task
+- New requirement analysis
+- Work planning or implementation
 
 **Responsibility Boundary**: This skill completes with updated document approval.
 
@@ -66,7 +66,7 @@ ls docs/design/*.md docs/prd/*.md docs/adr/*.md 2>/dev/null | grep -v template
 | $ARGUMENTS specifies a path | Use specified document |
 | $ARGUMENTS describes a topic | Search documents matching the topic |
 | Multiple candidates found | Present options with AskUserQuestion |
-| No documents found | Report and end (suggest /recipe-design instead) |
+| No documents found | Report and end (document creation is out of scope) |
 
 ### Step 2: Document Type and Layer Determination
 
@@ -190,7 +190,7 @@ prompt: |
 
 | Error | Action |
 |-------|--------|
-| Target document not found | Report and end (suggest /recipe-design instead) |
+| Target document not found | Report and end (document creation is out of scope) |
 | Sub-agent update fails | Log failure, present error to user, retry once |
 | Review rejects after 2 revisions | Stop loop, flag for human intervention |
 | design-sync detects conflicts | Present to user for resolution decision |

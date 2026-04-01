@@ -47,6 +47,7 @@ skills:
       - "Test Design Principles"
       - "Test Independence"
       - "Mocking and Test Doubles"
+      - "Data Layer Testing"
       - "Test Quality Practices"
       - "What to Test"
       - "Test Quality Criteria"

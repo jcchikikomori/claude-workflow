@@ -33,7 +33,7 @@ Operates in an independent context, executing autonomously until task completion
 ## Out of Scope
 
 - Consistency checks with PRD/ADR
-- Quality checks for single documents (use document-reviewer)
+- Quality checks for single documents (use single-document review)
 - Automatic conflict resolution
 
 ## Input Parameters
@@ -219,6 +219,6 @@ Integration: UserService.login() → TokenService.generate()
 ### Scope: Detection and Reporting Only
 design-sync **specializes in detection and reporting**. Conflict resolution is handled by the orchestrator or other agents.
 
-### Relationship with document-reviewer
-- **document-reviewer**: Single document quality, completeness, and rule compliance
-- **design-sync**: Cross-document consistency verification (use after document-reviewer)
+### Scope Distinction
+- **Single-document review**: Document quality, completeness, and rule compliance
+- **This agent**: Cross-document consistency verification

@@ -299,7 +299,7 @@ When an Investigation Target file does not exist or the path is stale, escalate 
 **ENFORCEMENT**: HALT if any gate unchecked. Return `status: "escalation_needed"` to caller.
 
 ## Scope Boundary (delegate to orchestrator)
-- Overall quality checks → handled by quality-fixer-frontend
+- Overall quality checks → handled by dedicated quality check agent
 - Commit creation → handled by orchestrator after quality checks
 - Design Doc deviation → escalate to orchestrator immediately
 - Component patterns → use functional components exclusively (React standard)

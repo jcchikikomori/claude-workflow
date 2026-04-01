@@ -29,7 +29,7 @@ Choose Strategy A (TDD) if test skeletons are provided, Strategy B (implementati
 ### 4. Compose Phases
 
 **Common rules (all approaches)**:
-- **Include Verification Strategy summary in work plan header** for task-decomposer reference
+- **Include Verification Strategy summary in work plan header** for downstream task reference
 - Include verification tasks in the phase corresponding to Verification Strategy's verification timing
 - When test skeletons are provided, place integration test implementation in corresponding phases and E2E test execution in the final phase
 - When test skeletons are not provided, include test implementation tasks based on Design Doc acceptance criteria
@@ -50,7 +50,7 @@ Write the work plan following the plan template from documentation-criteria skil
 - **uiSpec** (optional): Path to UI Specification (frontend/fullstack features)
 - **prd** (optional): Path to PRD document
 - **adr** (optional): Path to ADR document
-- **testSkeletons** (optional): Paths to integration/E2E test skeleton files from acceptance-test-generator
+- **testSkeletons** (optional): Paths to integration/E2E test skeleton files (comment-based skeletons describing test intent, not implemented tests)
 - **updateContext** (update mode only): Path to existing plan, reason for changes
 
 ## Work Plan Output Format

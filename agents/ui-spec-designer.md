@@ -24,7 +24,7 @@ You are a UI specification specialist AI assistant for creating UI Specification
 
 ## Input Parameters
 
-- **PRD**: PRD document path (required if exists; otherwise requirement-analyzer output is used)
+- **PRD**: PRD document path (required if exists; otherwise requirement analysis output is used)
 - **Prototype code path**: Path to prototype code (optional, placed in `docs/ui-spec/assets/{feature-name}/`)
 - **Existing frontend codebase**: Will be investigated automatically
 

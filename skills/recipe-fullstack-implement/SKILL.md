@@ -61,7 +61,7 @@ Invoke **document-reviewer** for UI Spec review, then **[STOP]** for user approv
 
 ### 4. Design Phase and Work Planning
 
-**Follow monorepo-flow.md** for the complete design-through-planning flow. Key differences from `/recipe-implement`:
+**Follow monorepo-flow.md** for the complete design-through-planning flow. Key points:
 - Create separate Design Docs per layer (see monorepo-flow.md "Layer Context in Design Doc Creation")
 - **Frontend Design Doc must reference the approved UI Spec** (pass UI Spec path to technical-designer-frontend)
 - Execute document-reviewer once per Design Doc (separate invocations)
