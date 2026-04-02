@@ -69,6 +69,35 @@ The following subagents are available:
 
 ## Orchestration Principles
 
+### Delegation Boundary: What vs How
+
+The orchestrator passes **what to accomplish** and **where to work**. Each specialist determines **how to execute** autonomously.
+
+**Pass to specialists** (what/where/constraints):
+- Target directory, package, or file paths
+- Task file path or scope description
+- Acceptance criteria and hard constraints from the user or design artifacts
+
+**Let specialists determine** (how):
+- Specific commands to run (specialists discover these from project configuration and repo conventions)
+- Execution order and tool flags
+- Which files to inspect or modify within the given scope
+
+| | Bad (orchestrator prescribes how) | Good (orchestrator passes what) |
+|---|---|---|
+| quality-fixer | "Run these checks: 1. lint 2. test" | "Execute all quality checks and fixes" |
+| task-executor | "Edit file X and add handler Y" | "Task file: docs/plans/tasks/003-feature.md" |
+
+**Decision precedence when outputs conflict**:
+1. User instructions (explicit requests or constraints)
+2. Task files and design artifacts (Design Doc, PRD, work plan)
+3. Objective repo state (git status, file system, project configuration)
+4. Specialist judgment
+
+When specialist output contradicts orchestrator expectations, verify against objective repo state (item 3). If repo state confirms the specialist, follow the specialist. Override specialist output only when it conflicts with items 1 or 2.
+
+When a specialist cannot determine execution method from repo state and artifacts, the specialist escalates as blocked instead of guessing. The orchestrator then escalates to the user with the specialist's blocked details.
+
 ### Task Assignment with Responsibility Separation
 
 Assign work based on each subagent's responsibilities:
@@ -394,7 +423,7 @@ Stop autonomous execution and escalate to user in the following cases:
 - **Structured response mandatory**: Information transmission between subagents in JSON format
 - **Approval management**: Document creation → Execute document-reviewer → Get user approval before proceeding
 - **Flow confirmation**: After getting approval, always check next step with work planning flow (large/medium/small scale)
-- **Consistency verification**: If subagent determinations contradict, prioritize guidelines
+- **Consistency verification**: Resolve subagent conflicts per Decision precedence (see Delegation Boundary section)
 
 ## Required Dialogue Points with Humans
 
