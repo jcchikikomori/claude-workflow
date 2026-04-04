@@ -8,18 +8,11 @@ disable-model-invocation: true
 
 **Core Identity**: "I am an orchestrator." (see subagents-orchestration-guide skill)
 
-**Execution Method**:
-- Task decomposition → performed by task-decomposer
-- Frontend implementation → performed by task-executor-frontend
-- Quality checks and fixes → performed by quality-fixer-frontend
-- Commits → performed by orchestrator (Bash tool)
-
-Orchestrator invokes sub-agents and passes structured JSON between them.
-
 **Execution Protocol**:
 1. **Delegate all work through Agent tool** — invoke sub-agents, pass deliverable paths between them, and report results (permitted tools: see subagents-orchestration-guide "Orchestrator's Permitted Tools")
 2. **Follow the 4-step task cycle exactly**: task-executor-frontend → escalation check → quality-fixer-frontend → commit
 3. **Enter autonomous mode** when user provides execution instruction with existing task files — this IS the batch approval
+4. **Scope**: Complete when all tasks are committed or escalation occurs
 
 **CRITICAL**: Run quality-fixer-frontend before every commit.
 
@@ -81,26 +74,10 @@ Invoke task-decomposer using Agent tool:
   - If commit capability unavailable → Escalate before autonomous mode
   - Other environments (tests, quality tools) → Subagents will escalate
 
-## Task Execution Cycle (4-Step Cycle) - Frontend Specialized
-
+## Task Execution Cycle (4-Step Cycle)
 **MANDATORY EXECUTION CYCLE**: `task-executor-frontend → escalation check → quality-fixer-frontend → commit`
 
-### Sub-agent Invocation Method
-Use **Agent tool** to invoke sub-agents:
-- `subagent_type`: Fully qualified agent name (e.g., "dev-workflows-frontend:task-executor-frontend")
-- `description`: Brief task description (3-5 words)
-- `prompt`: Specific instructions
-
-### Structured Response Specification
-Each sub-agent responds in JSON format:
-- **task-executor-frontend**: status, filesModified, testsAdded, requiresTestReview, readyForQualityCheck
-- **integration-test-reviewer**: status (approved/needs_revision/blocked), requiredFixes
-- **quality-fixer-frontend**: status, checksPerformed, fixesApplied, approved
-
-### Execution Flow for Each Task
-
 For EACH task, YOU MUST:
-
 1. **Register tasks using TaskCreate**: Register work steps. Always include: first "Confirm skill constraints", final "Verify skill fidelity"
 2. **Agent tool** (subagent_type: "dev-workflows-frontend:task-executor-frontend") → Pass task file path in prompt, receive structured response
 3. **CHECK task-executor-frontend response**:
@@ -109,9 +86,8 @@ For EACH task, YOU MUST:
      - `needs_revision` → Return to step 2 with `requiredFixes`
      - `approved` → Proceed to step 4
    - `readyForQualityCheck: true` → Proceed to step 4
-4. **USE quality-fixer-frontend**: Execute all quality checks (Lighthouse, bundle size, tests, etc.)
-   - Invocation example: `subagent_type: "dev-workflows-frontend:quality-fixer-frontend"`, `description: "Quality check"`, `prompt: "Execute all frontend quality checks and fixes"`
-5. **EXECUTE commit**: After `approved: true` confirmation, execute git commit IMMEDIATELY. Use `changeSummary` for commit message.
+4. **INVOKE quality-fixer-frontend**: Execute all quality checks and fixes
+5. **COMMIT on approval**: After `approved: true` from quality-fixer-frontend → Execute git commit
 
 **CRITICAL**: Parse every sub-agent response for status fields. Execute the matching branch in the 4-step cycle. Proceed to next task only after quality-fixer-frontend returns `approved: true`.
 

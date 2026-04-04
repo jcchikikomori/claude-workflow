@@ -6,23 +6,25 @@ disable-model-invocation: true
 
 **Context**: Post-implementation quality assurance for React/TypeScript frontend
 
+## Orchestrator Definition
+
+**Core Identity**: "I am an orchestrator." (see subagents-orchestration-guide skill)
+
+**First Action**: Register Steps 1-11 using TaskCreate before any execution.
+
 ## Execution Method
 
 - Compliance validation → performed by code-reviewer
 - Security validation → performed by security-reviewer
-- Rule analysis → performed by rule-advisor
 - Fix implementation → performed by task-executor-frontend
 - Quality checks → performed by quality-fixer-frontend
 - Re-validation → performed by code-reviewer / security-reviewer
 
-Orchestrator invokes sub-agents and passes structured JSON between them.
-
 Design Doc (uses most recent if omitted): $ARGUMENTS
-
 
 ## Execution Flow
 
-### 1. Prerequisite Check
+### Step 1: Prerequisite Check
 ```bash
 # Identify Design Doc
 ls docs/design/*.md | grep -v template | tail -1
@@ -31,7 +33,7 @@ ls docs/design/*.md | grep -v template | tail -1
 git diff --name-only main...HEAD
 ```
 
-### 2. Execute code-reviewer
+### Step 2: Execute code-reviewer
 Invoke code-reviewer using Agent tool:
 - `subagent_type`: "dev-workflows-frontend:code-reviewer"
 - `description`: "Code compliance review"
@@ -39,7 +41,7 @@ Invoke code-reviewer using Agent tool:
 
 **Store output as**: `$STEP_2_OUTPUT`
 
-### 3. Execute security-reviewer
+### Step 3: Execute security-reviewer
 Invoke security-reviewer using Agent tool:
 - `subagent_type`: "dev-workflows-frontend:security-reviewer"
 - `description`: "Security review"
@@ -47,7 +49,7 @@ Invoke security-reviewer using Agent tool:
 
 **Store output as**: `$STEP_3_OUTPUT`
 
-### 4. Verdict and Response
+### Step 4: Verdict and Response
 
 **If security-reviewer returned `blocked`**: Stop immediately. Report the blocked finding and escalate to user. Do not proceed to fix steps.
 
@@ -85,46 +87,46 @@ Security Review: [status from security-reviewer]
 Execute fixes? (y/n):
 ```
 
-If both pass and user selects `n`: Skip fix steps, proceed to Final Report.
+If both pass and user selects `n`: Skip Steps 5-10, proceed to Step 11.
 
-If user selects `y`:
+### Step 5: Execute Skill
 
-## Pre-fix Metacognition
+Execute Skill: documentation-criteria (for task file template)
 
-### 5. Execute rule-advisor
-Invoke rule-advisor using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:rule-advisor"
-- `description`: "Analyze fix approach"
-- `prompt`: "Task: Fix review findings. Code issues: $STEP_2_OUTPUT. Security findings: $STEP_3_OUTPUT. Analyze fix essence and select appropriate rules."
+### Step 6: Create Task File
 
-### 6. Create Task File
-Register work steps using TaskCreate. Always include: first "Confirm skill constraints", final "Verify skill fidelity". Create task file following task template (see documentation-criteria skill) → `docs/plans/tasks/review-fixes-YYYYMMDD.md`. Include both code compliance issues and security requiredFixes.
+Create task file at `docs/plans/tasks/review-fixes-YYYYMMDD.md`
+Include both code compliance issues and security requiredFixes.
 
-### 7. Execute Fixes
+### Step 7: Execute Fixes
+
 Invoke task-executor-frontend using Agent tool:
 - `subagent_type`: "dev-workflows-frontend:task-executor-frontend"
 - `description`: "Execute review fixes"
 - `prompt`: "Task file: docs/plans/tasks/review-fixes-YYYYMMDD.md. Apply staged fixes (stops at 5 files)."
 
-### 8. Quality Check
+### Step 8: Quality Check
+
 Invoke quality-fixer-frontend using Agent tool:
 - `subagent_type`: "dev-workflows-frontend:quality-fixer-frontend"
 - `description`: "Quality gate check"
 - `prompt`: "Confirm quality gate passage for fixed files."
 
-### 9. Re-validate code-reviewer
+### Step 9: Re-validate code-reviewer
+
 Invoke code-reviewer using Agent tool:
 - `subagent_type`: "dev-workflows-frontend:code-reviewer"
 - `description`: "Re-validate compliance"
-- `prompt`: "Re-validate Design Doc compliance after fixes. Prior issues: $STEP_2_OUTPUT. Design Doc: [path]. Implementation files: [file list]."
+- `prompt`: "Re-validate Design Doc compliance after fixes. Design Doc: [path]. Implementation files: [file list]. Prior compliance issues: $STEP_2_OUTPUT. Verify each prior issue is resolved."
 
-### 10. Re-validate security-reviewer (only if security fixes were applied)
-Invoke security-reviewer using Agent tool:
+### Step 10: Re-validate security-reviewer
+
+Invoke security-reviewer using Agent tool (only if security fixes were applied):
 - `subagent_type`: "dev-workflows-frontend:security-reviewer"
 - `description`: "Re-validate security"
 - `prompt`: "Re-validate security after fixes. Prior findings: $STEP_3_OUTPUT. Design Doc: [path]. Implementation files: [file list]."
 
-### Final Report
+### Step 11: Final Report
 ```
 Code Compliance:
   Initial: [X]%
