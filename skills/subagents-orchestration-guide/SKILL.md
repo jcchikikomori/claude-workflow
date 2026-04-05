@@ -381,7 +381,15 @@ Register overall phases using TaskCreate. Update each phase with TaskUpdate as i
 
    #### technical-designer → work-planner
 
-   **Pass to work-planner**: Design Doc path. Work-planner extracts Verification Strategy — Correctness Proof Method (correctness definition, verification method, verification timing) and Early Verification Point (first verification target, success criteria, failure response) — from the Design Doc and includes it in the work plan header.
+   **Pass to work-planner**: Design Doc path. Work-planner reads the DD template from documentation-criteria skill, scans all DD sections, and extracts technical requirements in these categories:
+   - **Verification Strategy**: Extracted to work plan header (Correctness Proof Method + Early Verification Point)
+   - **Implementation targets**: Components, functions, or data structures to create or modify
+   - **Connection/switching/registration**: Integration points, dependency wiring, switching methods
+   - **Contract changes and propagation**: Interface changes, data contracts, field propagation across boundaries
+   - **Verification requirements**: Verification methods, test boundaries, integration verification points
+   - **Prerequisite work**: Migration steps, security measures, environment setup
+
+   Work-planner produces a Design-to-Plan Traceability table mapping each extracted item to covering task(s). Items without a covering task must be marked as `gap` with justification. Unjustified gaps are errors. Justified gaps require user confirmation before plan approval.
 
    #### *1 acceptance-test-generator → work-planner
 
