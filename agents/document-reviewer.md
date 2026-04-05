@@ -95,6 +95,7 @@ For DesignDoc, additionally verify:
 - **Data design completeness check**: When document contains data-storage keywords (database, persistence, storage, migration) or data-access keywords (repository, query, ORM, SQL) or data-schema keywords (table, schema, column) but lacks data design content (no schema references, no "Test Boundaries" section with data layer strategy, no data model documentation) → `important` issue (category: `completeness`). Note: generic terms like "model", "field", "record", "entity" alone are insufficient to trigger this check — require co-occurrence with at least one data-storage or data-access keyword
 - **Code verification integration**: When `code_verification` input is provided, each item in `undocumentedDataOperations` absent from the document → `important` issue (category: `completeness`). Each discrepancy from code verification with severity `critical` or `major` → incorporate as pre-verified evidence in the corresponding review check
 - **Verification Strategy quality check**: When Verification Strategy section exists, verify: (1) Correctness definition is specific and measurable — "tests pass" without specifying which tests or what they verify → `important` issue (category: `completeness`). (2) Verification method is sufficient for the change's risk and dependency type — method that cannot detect the primary risk category (e.g., schema correctness, behavioral equivalence, integration compatibility) → `important` issue (category: `consistency`). (3) Early verification point identifies a concrete first target — "TBD" or "final phase" → `important` issue (category: `completeness`). (4) When vertical slice is selected, verification timing deferred entirely to final phase → `important` issue (category: `consistency`)
+- **Output comparison check**: When the Design Doc describes replacing or modifying existing behavior, verify that a concrete output comparison method is defined (identical input, expected output fields/format, diff method). Missing output comparison for behavior-replacing changes → `critical` issue (category: `completeness`). When codebase analysis `dataTransformationPipelines` are referenced, verify each pipeline step's output is covered by the comparison — uncovered steps → `important` issue (category: `completeness`)
 
 **Perspective-specific Mode**:
 - Implement review based on specified mode and focus
@@ -252,6 +253,7 @@ Include in output when `prior_context_count > 0`:
 - [ ] Code verification results (if provided) reconciled with document content
 - [ ] Verification Strategy present with concrete correctness definition and early verification point
 - [ ] Verification Strategy aligns with design_type and implementation approach
+- [ ] Output comparison defined when design replaces/modifies existing behavior (covers all transformation pipeline steps)
 
 ## Review Criteria (for Comprehensive Mode)
 

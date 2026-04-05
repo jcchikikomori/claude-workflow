@@ -44,15 +44,22 @@ Design decisions, document creation, and solution proposals are out of scope for
 
 For each file in `affectedFiles`:
 
-1. **Read the file** and extract:
-   - Public interfaces, types, function signatures, class definitions
-   - Record exact names and signatures as they appear in code
-2. **Trace one level of dependencies**: Identify direct dependencies by reading the module's dependency declarations (import statements, use declarations, include directives — adapt to project language). Read each imported module's public interface
-3. **Pattern detection** (adapt search terms to project conventions):
+1. **Read the file in full** and extract:
+   - Every interface, type, function signature, class definition, and method definition (public and private/internal)
+   - Record exact names, visibility, and signatures as they appear in code
+   - Extract the complete list including all visibility levels
+2. **Trace call chains** with these scope rules (adapt visibility terms to project language — e.g., public/private, exported/unexported, pub/pub(crate)):
+   - Same module internal functions/methods: follow every call recursively until the chain terminates (returns, delegates to external, or reaches a leaf)
+   - External dependencies (imported modules, other packages): read the public interface only (signatures, contracts); record as an integration point but stop tracing into the external module's internals
+3. **Data transformation pipeline detection**: For each entry point that receives input from outside the module (API handlers, exported service functions called by other modules, CLI entry points), trace how input data is transformed step by step through the call chain:
+   - Record each transformation step (what changes, what format/value mapping occurs)
+   - Record external resource lookups that modify values (master table references, configuration lookups, constant substitutions)
+   - Record intermediate data formats (if data passes through a different representation before final output)
+4. **Pattern detection** (adapt search terms to project conventions):
    - Data access: Grep for patterns indicating database operations (query, select, insert, update, delete, find, save, create, repository, model, schema, migration, table, column, entity, record)
    - External integration: Grep for patterns indicating external calls (http, fetch, client, api, endpoint, request, response)
    - Validation: Grep for patterns indicating constraints (validate, check, assert, constraint, rule, require, ensure)
-4. Record each discovered element with file path and line number
+5. Record each discovered element with file path and line number
 
 ### Step 3: Schema and Data Model Discovery
 
@@ -130,6 +137,23 @@ Return the JSON result as the final response. See Output Format for the schema.
     ],
     "migrationFiles": ["path/to/migration/files"]
   },
+  "dataTransformationPipelines": [
+    {
+      "entryPoint": "ClassName.methodName (file:line)",
+      "steps": [
+        {
+          "order": 1,
+          "method": "methodName (file:line)",
+          "input": "description of input data/format",
+          "output": "description of output data/format",
+          "externalLookups": ["MasterTable.getData() for code conversion"],
+          "transformation": "what changes (e.g., raw value mapped to display value via lookup table)"
+        }
+      ],
+      "intermediateFormats": ["description of intermediate data representation if any"],
+      "finalOutput": "description of final output data/format"
+    }
+  ],
   "constraints": [
     {
       "type": "validation|business_rule|configuration|assumption",
@@ -157,8 +181,10 @@ Return the JSON result as the final response. See Output Format for the schema.
 ## Completion Criteria
 
 - [ ] Parsed requirement analysis output and identified analysis categories
-- [ ] Read all affected files and extracted public interfaces with file:line references
-- [ ] Traced one level of imports for each affected file
+- [ ] Read all affected files in full and extracted every interface (public and private) with file:line references — or recorded incomplete files in `limitations`
+- [ ] Traced call chains per scope rules (same-file: recursive; external: public interface only) — or recorded incomplete traces in `limitations`
+- [ ] Identified data transformation pipelines with step-by-step input→output mapping for each public entry point
+- [ ] Recorded every external resource lookup (master tables, config, constants) that modifies output values
 - [ ] Searched for data access, external integration, and validation patterns using Grep
 - [ ] When data access detected: traced to schema definitions and extracted field-level details
 - [ ] Extracted constraints with file:line evidence
@@ -173,4 +199,6 @@ Return the JSON result as the final response. See Output Format for the schema.
 - [ ] Schema field names match actual definitions (not inferred from similar tables)
 - [ ] Each focus area cites specific files and concrete risks
 - [ ] `dataModel.detected` accurately reflects whether data operations were found
+- [ ] `dataTransformationPipelines` populated for every entry point that transforms data (empty array only when no transformations exist)
+- [ ] Each pipeline step's `externalLookups` lists all master table / config / constant references that modify output values
 - [ ] Limitations section documents any files that could not be read or patterns that could not be traced

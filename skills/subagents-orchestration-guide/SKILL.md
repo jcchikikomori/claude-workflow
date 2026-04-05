@@ -372,7 +372,7 @@ Register overall phases using TaskCreate. Update each phase with TaskUpdate as i
    #### codebase-analyzer → technical-designer
 
    **Pass to codebase-analyzer**: requirement-analyzer JSON output, PRD path (if exists), original user requirements
-   **Pass to technical-designer**: codebase-analyzer JSON output as additional context in the Design Doc creation prompt. The designer uses `focusAreas` and `dataModel` to inform the Existing Codebase Analysis section.
+   **Pass to technical-designer**: codebase-analyzer JSON output as additional context in the Design Doc creation prompt. The designer uses `focusAreas`, `dataModel`, and `dataTransformationPipelines` to inform the Existing Codebase Analysis and Verification Strategy sections.
 
    #### code-verifier → document-reviewer (Design Doc review)
 
