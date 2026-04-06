@@ -62,6 +62,7 @@ description: Documentation creation criteria including PRD, ADR, Design Doc, and
 - Success metrics and KPIs (each metric specifies a numeric target and measurement method)
 - User stories and use cases
 - MoSCoW prioritization (Must/Should/Could/Won't)
+- Acceptance criteria with sequential IDs (AC-001, AC-002, ...) for downstream traceability
 - MVP and Future phase separation
 - User journey diagram (required)
 - Scope boundary diagram (required)
