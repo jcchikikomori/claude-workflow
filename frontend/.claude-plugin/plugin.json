@@ -1,6 +1,6 @@
 {
   "name": "dev-workflows-frontend",
-  "version": "0.16.14-jcc.1",
+  "version": "0.16.14-jcc.3",
   "description": "Skills + Subagents for React/TypeScript - Use skills for coding guidance, or run recipe workflows for full orchestrated agentic coding with specialized agents",
   "author": {
     "name": "John Cyrill Corsanes",
@@ -41,6 +41,8 @@
     "./agents/technical-designer-frontend.md",
     "./agents/ui-spec-designer.md",
     "./agents/verifier.md",
-    "./agents/work-planner.md"
+    "./agents/work-planner.md",
+    "./agents/web-qa-reviewer.md",
+    "./agents/claude-md-generator.md"
   ]
 }

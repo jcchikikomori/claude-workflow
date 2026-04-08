@@ -16,7 +16,7 @@
 | macOS | Supported | |
 | Linux | Supported | |
 | WSL (Windows) | Supported | Recommended for Windows users |
-| Native Windows | Not supported | Symlinks used internally are not reliably supported on native Windows without Developer Mode and `git config core.symlinks=true` |
+| Native Windows | Not supported | Symlinks used internally are not reliably supported on native Windows without Developer Mode and `git config core.symlinks=true` or `git config --global core.symlinks true` |
 
 > Windows users should run Claude Code inside **WSL** (Windows Subsystem for Linux). Native Windows support is not planned — the plugin architecture relies on Unix symlinks to share agents and skills across plugins without duplication.
 
@@ -446,7 +446,7 @@ UI Spec bridges this by capturing component states, interactions, and acceptance
 
 ## 📂 Repository Structure
 
-```
+```text
 claude-code-workflows/
 ├── .claude-plugin/
 │   └── marketplace.json        # Manages both plugins
