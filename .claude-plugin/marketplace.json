@@ -1,8 +1,8 @@
 {
-  "name": "claude-code-workflows",
+  "name": "my-claude-code-workflows",
   "owner": {
-    "name": "Shinsuke Kagawa",
-    "url": "https://github.com/shinpr"
+    "name": "John Cyrill Corsanes",
+    "url": "https://github.com/jcchikikomori"
   },
   "metadata": {
     "description": "Skills + Subagents for Claude Code - Progressive skills for quick wins, orchestrated agents for full agentic coding"

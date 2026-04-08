@@ -1,13 +1,13 @@
 {
   "name": "dev-workflows-frontend",
-  "version": "0.16.14",
+  "version": "0.16.14-jcc.1",
   "description": "Skills + Subagents for React/TypeScript - Use skills for coding guidance, or run recipe workflows for full orchestrated agentic coding with specialized agents",
   "author": {
-    "name": "Shinsuke Kagawa",
-    "url": "https://github.com/shinpr"
+    "name": "John Cyrill Corsanes",
+    "url": "https://github.com/jcchikikomori"
   },
-  "homepage": "https://github.com/shinpr/dev-workflows",
-  "repository": "https://github.com/shinpr/dev-workflows.git",
+  "homepage": "https://github.com/jcchikikomori/my-claude-code-workflows",
+  "repository": "https://github.com/jcchikikomori/my-claude-code-workflows.git",
   "license": "MIT",
   "keywords": [
     "react",
