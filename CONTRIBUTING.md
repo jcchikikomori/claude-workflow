@@ -48,6 +48,7 @@ Not sure if your plugin fits? Open an issue to discuss before spending time on a
 
 1. Fork this repository
 2. Add your plugin to `.claude-plugin/marketplace.json`:
+
    ```json
    {
      "name": "your-plugin-name",
@@ -60,8 +61,9 @@ Not sure if your plugin fits? Open an issue to discuss before spending time on a
      "homepage": "https://github.com/your-org/your-plugin"
    }
    ```
+
 3. Add a brief entry to the **External Plugins** section in `README.md`
-4. [Open a Pull Request using the external plugin template](https://github.com/shinpr/claude-code-workflows/compare/main...main?template=external-plugin.md) and fill in the required information
+4. [Open a Pull Request using the external plugin template](https://github.com/jcchikikomori/my-claude-code-workflows/compare/main...main?template=external-plugin.md) and fill in the required information
 
 ## Review Process
 

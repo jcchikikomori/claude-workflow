@@ -1,9 +1,9 @@
 # Claude Code Workflows 🚀
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-purple)](https://claude.ai/code)
-[![GitHub Stars](https://img.shields.io/github/stars/shinpr/claude-code-workflows?style=social)](https://github.com/shinpr/claude-code-workflows)
+[![GitHub Stars](https://img.shields.io/github/stars/jcchikikomori/my-claude-code-workflows?style=social)](https://github.com/jcchikikomori/my-claude-code-workflows)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/shinpr/claude-code-workflows/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/jcchikikomori/my-claude-code-workflows/pulls)
 
 **End-to-end development workflows for Claude Code** - Specialized agents handle requirements, design, implementation, and quality checks so you get reviewable code, not just generated code.
 
@@ -14,15 +14,18 @@
 This marketplace includes the following plugins:
 
 **Core plugins:**
+
 - **dev-workflows** - Backend and general-purpose development
 - **dev-workflows-frontend** - React/TypeScript specialized workflows
 
 **Optional add-ons** (enhance core plugins):
+
 - **[claude-code-discover](https://github.com/shinpr/claude-code-discover)** - Turns feature ideas into evidence-backed PRDs
 - **[metronome](https://github.com/shinpr/metronome)** - Detects shortcut-taking behavior and nudges Claude to proceed step by step
 - **[linear-prism](https://github.com/shinpr/linear-prism)** - Turns requirements into structured Linear tasks — validates before decomposing, so downstream design starts clean
 
 **Skills only** (for users with existing workflows):
+
 - **dev-skills** - Coding best practices, testing principles, and design guidelines — no workflow recipes
 
 These plugins provide end-to-end workflows for AI-assisted development. Choose what fits your project:
@@ -34,10 +37,10 @@ These plugins provide end-to-end workflows for AI-assisted development. Choose w
 claude
 
 # 2. Install the marketplace
-/plugin marketplace add shinpr/claude-code-workflows
+/plugin marketplace add jcchikikomori/my-claude-code-workflows
 
 # 3. Install backend plugin
-/plugin install dev-workflows@claude-code-workflows
+/plugin install dev-workflows@my-claude-code-workflows
 
 # 4. Reload plugins
 /reload-plugins
@@ -52,7 +55,7 @@ claude
 # 1-2. Same as above (start Claude Code and add marketplace)
 
 # 3. Install frontend plugin
-/plugin install dev-workflows-frontend@claude-code-workflows
+/plugin install dev-workflows-frontend@my-claude-code-workflows
 
 # 4-5. Same as above (reload plugins and start building)
 
@@ -78,13 +81,13 @@ The fullstack recipes create separate Design Docs per layer (backend + frontend)
 
 ```bash
 # Install discover (product discovery before implementation)
-/plugin install discover@claude-code-workflows
+/plugin install discover@my-claude-code-workflows
 
 # Install metronome (prevents shortcut-taking behavior)
-/plugin install metronome@claude-code-workflows
+/plugin install metronome@my-claude-code-workflows
 
 # Install linear-prism (requirements → Linear tasks with quality gates)
-/plugin install linear-prism@claude-code-workflows
+/plugin install linear-prism@my-claude-code-workflows
 ```
 
 ### Skills Only (For Users with Existing Workflows)
@@ -99,7 +102,7 @@ If you already have your own orchestration (custom prompts, scripts, CI-driven l
 
 ```bash
 # Install skills-only plugin
-/plugin install dev-skills@claude-code-workflows
+/plugin install dev-skills@my-claude-code-workflows
 ```
 
 Skills auto-load when relevant — `coding-principles` activates during implementation, `testing-principles` during test writing, etc.
@@ -108,12 +111,12 @@ Skills auto-load when relevant — `coding-principles` activates during implemen
 
 ```bash
 # dev-skills → dev-workflows
-/plugin uninstall dev-skills@claude-code-workflows
-/plugin install dev-workflows@claude-code-workflows
+/plugin uninstall dev-skills@my-claude-code-workflows
+/plugin install dev-workflows@my-claude-code-workflows
 
 # dev-workflows → dev-skills
-/plugin uninstall dev-workflows@claude-code-workflows
-/plugin install dev-skills@claude-code-workflows
+/plugin uninstall dev-workflows@my-claude-code-workflows
+/plugin install dev-skills@my-claude-code-workflows
 ```
 
 <a id="warning-duplicate-skills"></a>
@@ -422,7 +425,7 @@ UI Spec bridges this by capturing component states, interactions, and acceptance
 ```
 
 > If you're working with undocumented legacy code, these commands are designed to make it AI-friendly by generating PRD and design docs.
-> For a quick walkthrough, see: [How I Made Legacy Code AI-Friendly with Auto-Generated Docs](https://dev.to/shinpr/how-i-made-legacy-code-ai-friendly-with-auto-generated-docs-4353)
+> For context on why this workflow exists, see: [How I Made Legacy Code AI-Friendly with Auto-Generated Docs](https://dev.to/shinpr/how-i-made-legacy-code-ai-friendly-with-auto-generated-docs-4353) by [@shinpr](https://github.com/shinpr)
 
 ---
 
@@ -489,6 +492,7 @@ claude-code-workflows/
 **Q: Which plugin should I install?**
 
 A: Depends on what you're building:
+
 - **Backend, APIs, CLI tools, or general programming** → Install `dev-workflows`
 - **React apps** → Install `dev-workflows-frontend`
 - **Full-stack projects** → Install both
@@ -533,4 +537,4 @@ See [LICENSE](LICENSE) for full details.
 
 ---
 
-Built and maintained by [@shinpr](https://github.com/shinpr).
+Built and maintained by [@jcchikikomori](https://github.com/jcchikikomori). Originally created by [@shinpr](https://github.com/shinpr).
