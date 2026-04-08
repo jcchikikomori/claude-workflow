@@ -31,6 +31,10 @@ This marketplace includes the following plugins:
 - **dev-workflows** - Backend and general-purpose development
 - **dev-workflows-frontend** - React/TypeScript specialized workflows
 
+**Security & behavior control:**
+
+- **env-guard** - Prevents Claude from reading or leaking sensitive files — `.env`, credentials, SSH keys — via hook enforcement and behavioral guidance
+
 **Optional add-ons** (enhance core plugins):
 
 - **[claude-code-discover](https://github.com/shinpr/claude-code-discover)** - Turns feature ideas into evidence-backed PRDs
@@ -89,6 +93,19 @@ Install both plugins to get the complete toolkit for backend and frontend work.
 ```
 
 The fullstack recipes create separate Design Docs per layer (backend + frontend), verify cross-layer consistency via design-sync, and route tasks to the appropriate executor based on filename patterns. See [Fullstack Workflow](#fullstack-workflow) for details.
+
+### Security & Behavior Control
+
+```bash
+# Install env-guard (blocks Claude from reading .env, SSH keys, credentials)
+/plugin install env-guard@my-claude-code-workflows
+```
+
+`env-guard` works via a **PreToolUse hook** — it runs before every `Read`, `Write`, `Edit`, and `Bash` call and blocks access to sensitive paths at the tool level. It also loads a behavioral skill that instructs Claude not to attempt blocked operations in the first place.
+
+The plugin also ships a `secret-exposure-auditor` agent. Ask Claude to "audit for secrets" or "check for leaked credentials" to scan a project for hardcoded keys, committed `.env` files, and `.gitignore` gaps.
+
+> **Tip:** `env-guard` is compatible with all other plugins. Install it alongside `dev-workflows` or `dev-workflows-frontend` for full protection during development.
 
 ### External Plugins
 
@@ -230,6 +247,8 @@ All workflow entry points use the `recipe-` prefix to distinguish them from know
 | `/recipe-reverse-engineer` | Generate PRD/Design Docs from existing code | Legacy system documentation, codebase understanding |
 | `/recipe-add-integration-tests` | Add integration/E2E tests to existing code | Test coverage for existing implementations |
 | `/recipe-update-doc` | Update existing design documents with review | Spec changes, review feedback, document maintenance |
+| `/recipe-generate-claude-md` | Generate a CLAUDE.md from scratch for a project | New projects or codebases missing AI agent instructions |
+| `/recipe-web-qa` | Browser-layer QA on a live running web app | Smoke testing, regression checks, Lighthouse audit |
 
 ### Frontend Development (dev-workflows-frontend)
 
@@ -268,6 +287,8 @@ These agents work the same way whether you're building a REST API or a React app
 | **verifier** | Validates investigation results using ACH and Devil's Advocate methods |
 | **solver** | Generates solutions with tradeoff analysis and implementation steps |
 | **security-reviewer** | Reviews implementation for security compliance after all tasks complete |
+| **claude-md-generator** | Generates a CLAUDE.md from scratch by analyzing project structure, tech stack, and commands |
+| **web-qa-reviewer** | Browser-layer QA via Chrome DevTools — Lighthouse audit, console errors, network failures, screenshot |
 
 ### Backend-Specific Agents (dev-workflows)
 
@@ -494,6 +515,18 @@ claude-code-workflows/
 │   └── .claude-plugin/
 │       └── plugin.json
 │
+├── env-guard/                  # env-guard plugin (security & behavior control)
+│   ├── hooks/
+│   │   ├── hooks.json          # PreToolUse hook registration
+│   │   └── env_guard_hook.py   # Blocking script (exits 2 on sensitive path/command)
+│   ├── skills/
+│   │   └── env-guard/
+│   │       └── SKILL.md        # Behavioral guidance (injected into Claude context)
+│   ├── agents/
+│   │   └── secret-exposure-auditor.md  # On-demand secret audit agent
+│   └── .claude-plugin/
+│       └── plugin.json
+│
 ├── LICENSE
 └── README.md
 ```
@@ -527,6 +560,12 @@ A: The quality-fixer agents (one in each plugin) automatically fix most issues l
 **Q: Is there a version for OpenAI Codex CLI?**
 
 A: Yes! **[codex-workflows](https://github.com/shinpr/codex-workflows)** provides the same end-to-end development workflows for Codex CLI. Same concept — specialized subagents for requirements, design, implementation, and quality checks — adapted for the Codex CLI environment.
+
+**Q: What does env-guard do and do I need it?**
+
+A: `env-guard` adds a security enforcement layer that prevents Claude from reading or leaking sensitive credential files (`.env`, SSH keys, cloud credentials, tokens). It works via a PreToolUse hook — the block happens before any tool call executes, so it cannot be overridden by prompt instructions. It also ships a behavioral skill and an on-demand `secret-exposure-auditor` agent.
+
+Install it alongside any other plugin if you want protection against accidental secret exposure during AI-assisted development.
 
 **Q: What's the difference between dev-skills and dev-workflows?**
 
