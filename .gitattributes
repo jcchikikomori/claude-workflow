@@ -1,0 +1,6 @@
+# Normalize line endings to LF on all platforms
+* text=auto eol=lf
+
+# Treat symlink target files explicitly as text
+*.md text eol=lf
+*.json text eol=lf

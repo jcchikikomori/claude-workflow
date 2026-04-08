@@ -9,6 +9,19 @@
 
 ---
 
+## Platform Support
+
+| Platform | Status | Notes |
+| -------- | ------ | ----- |
+| macOS | Supported | |
+| Linux | Supported | |
+| WSL (Windows) | Supported | Recommended for Windows users |
+| Native Windows | Not supported | Symlinks used internally are not reliably supported on native Windows without Developer Mode and `git config core.symlinks=true` |
+
+> Windows users should run Claude Code inside **WSL** (Windows Subsystem for Linux). Native Windows support is not planned — the plugin architecture relies on Unix symlinks to share agents and skills across plugins without duplication.
+
+---
+
 ## ⚡ Quick Start
 
 This marketplace includes the following plugins:
