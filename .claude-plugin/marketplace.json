@@ -24,6 +24,12 @@
       "description": "Lightweight skills for users with existing workflows - coding best practices, testing principles, and design guidelines without recipe workflows or agents"
     },
     {
+      "name": "env-guard",
+      "source": "./env-guard",
+      "description": "Prevents Claude Code from reading or leaking sensitive files — .env, credentials, SSH keys — via hook enforcement and behavioral guidance",
+      "category": "behavior-control"
+    },
+    {
       "name": "metronome",
       "source": {
         "source": "url",

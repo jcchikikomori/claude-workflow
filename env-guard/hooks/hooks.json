@@ -1,0 +1,16 @@
+{
+  "description": "Blocks Claude Code from reading, writing, or shell-leaking sensitive credential files",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/env_guard_hook.py"
+          }
+        ]
+      }
+    ]
+  }
+}
