@@ -46,14 +46,17 @@ Follow the planning process below:
        - `description`: "Test skeleton generation"
        - If UI Spec exists: `prompt: "Generate test skeletons from Design Doc at [path]. UI Spec at [ui-spec path]."`
        - If no UI Spec: `prompt: "Generate test skeletons from Design Doc at [path]."`
-   - Pass integration test file path and E2E test file path to work-planner according to subagents-orchestration-guide "acceptance-test-generator → work-planner" section
+   - Pass integration test file path, E2E test file path (or null), and e2eAbsenceReason to work-planner according to subagents-orchestration-guide "acceptance-test-generator → work-planner" section
 
 ### Step 3: Work Plan Creation
 Invoke work-planner using Agent tool:
 - `subagent_type`: "dev-workflows-frontend:work-planner"
 - `description`: "Work plan creation"
 - If test skeletons were generated in Step 2:
-  `prompt`: "Create work plan from Design Doc at [path]. Integration test file: [integration test path from step 2]. E2E test file: [E2E test path from step 2]. Integration tests are created simultaneously with each phase implementation, E2E tests are executed only in final phase."
+  - When `generatedFiles.e2e` is not null:
+    `prompt`: "Create work plan from Design Doc at [path]. Integration test file: [integration test path]. E2E test file: [E2E test path]. Integration tests are created simultaneously with each phase implementation, E2E tests are executed only in final phase."
+  - When `generatedFiles.e2e` is null:
+    `prompt`: "Create work plan from Design Doc at [path]. Integration test file: [integration test path]. No E2E test skeletons were generated (reason: [e2eAbsenceReason]). Integration tests are created simultaneously with each phase implementation."
 - If test skeletons were not generated:
   `prompt`: "Create work plan from Design Doc at [path]."
 

@@ -180,7 +180,7 @@ Subagents respond in JSON format. Key fields for orchestrator decisions:
 - **design-sync**: sync_status (synced/conflicts_found)
 - **integration-test-reviewer**: status (approved/needs_revision/blocked), requiredFixes
 - **security-reviewer**: status (approved/approved_with_notes/needs_revision/blocked), findings, notes, requiredFixes
-- **acceptance-test-generator**: status, generatedFiles
+- **acceptance-test-generator**: status, generatedFiles (integration: path|null, e2e: path|null), budgetUsage, e2eAbsenceReason (null when E2E emitted, otherwise: no_multi_step_journey|below_threshold_user_confirmed)
 
 
 ## Handling Requirement Changes
@@ -406,14 +406,16 @@ Register overall phases using TaskCreate. Update each phase with TaskUpdate as i
    - UI Spec: [path] (if exists)
 
    **Orchestrator verification items**:
-   - Verify integration test file path retrieval and existence
-   - Verify E2E test file path retrieval and existence
+   - Verify `generatedFiles.integration` is a valid path (when not null) and the file exists
+   - Verify `generatedFiles.e2e` is a valid path (when not null) and the file exists
+   - When `generatedFiles.e2e` is null, verify `e2eAbsenceReason` is present — this is intentional absence, not an error
 
    **Pass to work-planner**:
    - Integration test file: [path] (create and execute simultaneously with each phase implementation)
-   - E2E test file: [path] (execute only in final phase)
+   - E2E test file: [path] or null (execute only in final phase, when provided)
+   - E2E absence reason: [reason] (when E2E is null — pass this so work-planner can skip E2E Gap Check for intentional absence)
 
-   **On error**: Escalate to user if files are not generated
+   **On error**: Escalate to user if integration file generation failed unexpectedly (status != completed). E2E being null with a valid absence reason is not an error.
 
 3. **ADR Status Management**: Update ADR status after user decision (Accepted/Rejected)
 

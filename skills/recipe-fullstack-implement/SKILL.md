@@ -153,9 +153,10 @@ After all task cycles finish, run verification agents **in parallel** before the
 
 ### Test Information Communication
 After acceptance-test-generator execution, when invoking work-planner (subagent_type: "dev-workflows:work-planner"), communicate:
-- Generated integration test file path
-- Generated E2E test file path
-- Explicit note that integration tests are created simultaneously with implementation, E2E tests are executed after all implementations
+- Generated integration test file path (from `generatedFiles.integration`)
+- Generated E2E test file path or null (from `generatedFiles.e2e`)
+- E2E absence reason (from `e2eAbsenceReason`, when E2E is null)
+- Explicit note that integration tests are created simultaneously with implementation, E2E tests are executed after all implementations (when E2E path is provided)
 
 ## Execution Method
 
