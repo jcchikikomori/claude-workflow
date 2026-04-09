@@ -1,6 +1,6 @@
 ---
 name: acceptance-test-generator
-description: Generates high-ROI integration/E2E test skeletons from Design Doc ACs. Use when Design Doc is complete and test design is needed, or when "test skeleton/AC/acceptance criteria" is mentioned. Behavior-first approach for minimal tests with maximum coverage.
+description: Generates integration/E2E test skeletons from Design Doc ACs using ROI-based selection and journey-based E2E reservation. Use when Design Doc is complete and test design is needed, or when "test skeleton/AC/acceptance criteria" is mentioned. Behavior-first approach for minimal tests with maximum coverage.
 tools: Read, Write, Glob, LS, TaskCreate, TaskUpdate, Grep
 skills: testing-principles, documentation-criteria, integration-e2e-testing
 ---
@@ -118,7 +118,8 @@ ROI calculation formula and cost table are defined in **integration-e2e-testing 
 3. **Push-Down Analysis**:
    ```
    Can this be unit-tested? → Remove from integration/E2E pool
-   Already integration-tested? → Don't create E2E version
+   Already integration-tested? → Keep as E2E candidate IF part of multi-step user journey (see definition in integration-e2e-testing skill)
+   Already integration-tested AND NOT part of multi-step journey? → Remove from E2E pool
    ```
 4. **Sort by ROI** (descending order)
 
@@ -128,15 +129,23 @@ ROI calculation formula and cost table are defined in **integration-e2e-testing 
 
 **Hard Limits per Feature**:
 - **Integration Tests**: MAX 3 tests
-- **E2E Tests**: MAX 1-2 tests (only if ROI > 50)
+- **E2E Tests**: MAX 1-2 tests total, composed of:
+  - 1 reserved slot (emitted regardless of ROI) when feature contains a **user-facing** multi-step user journey (see definition and classification in integration-e2e-testing skill)
+  - Up to 1 additional slot requiring ROI > 50
 
 **Selection Algorithm**:
 
 ```
-1. Sort candidates by ROI (descending)
-2. Select top N within budget:
+1. Reserve must-keep E2E slot:
+   IF feature contains user-facing multi-step user journey (see definition in integration-e2e-testing skill)
+   THEN reserve 1 E2E slot for the highest-ROI journey candidate
+   (This reserved candidate is emitted regardless of ROI threshold)
+
+2. Sort remaining candidates by ROI (descending)
+
+3. Select top N within budget:
    - Integration: Pick top 3 highest-ROI
-   - E2E: Pick top 1-2 IF ROI score > 50
+   - E2E (additional beyond reserved): Pick up to 1 more IF ROI score > 50
 ```
 
 **Output**: Final test set
@@ -155,7 +164,7 @@ The examples below use `//` comment syntax. Adapt to the project's language (e.g
 
 [Test suite using detected framework syntax]
   // AC1: "After successful payment, order is created and persisted"
-  // ROI: 85 | Business Value: 10 (business-critical) | Frequency: 9 (90% users)
+  // ROI: 98 (BV:10 × Freq:9 + Legal:0 + Defect:8)
   // Behavior: User completes payment → Order created in DB + Payment recorded
   // @category: core-functionality
   // @dependency: PaymentService, OrderRepository, Database
@@ -163,7 +172,7 @@ The examples below use `//` comment syntax. Adapt to the project's language (e.g
   [Test: 'AC1: Successful payment creates persisted order with correct status']
 
   // AC1-error: "Payment failure shows user-friendly error message"
-  // ROI: 72 | Business Value: 8 (prevents support tickets) | Frequency: 2 (rare)
+  // ROI: 23 (BV:8 × Freq:2 + Legal:0 + Defect:7)
   // Behavior: Payment fails → User sees actionable error + Order not created
   // @category: core-functionality
   // @dependency: PaymentService, ErrorHandler
@@ -183,7 +192,7 @@ The examples below use `//` comment syntax. Adapt to the project's language (e.g
 
 [Test suite using detected framework syntax]
   // User Journey: Complete purchase flow (browse → add to cart → checkout → payment → confirmation)
-  // ROI: 95 | Business Value: 10 (business-critical) | Frequency: 10 (core flow) | Legal: true (PCI compliance)
+  // ROI: 119 (BV:10 × Freq:10 + Legal:10 + Defect:9) | reserved slot: multi-step journey
   // Verification: End-to-end user experience from product selection to order confirmation
   // @category: e2e
   // @dependency: full-system
@@ -193,20 +202,49 @@ The examples below use `//` comment syntax. Adapt to the project's language (e.g
 
 ### Generation Report
 
+**When E2E tests are emitted:**
 ```json
 {
   "status": "completed",
-  "feature": "[feature name]",
+  "feature": "payment",
   "generatedFiles": {
-    "integration": "[path]/[feature].int.test.[ext]",
-    "e2e": "[path]/[feature].e2e.test.[ext]"
+    "integration": "tests/payment.int.test.[ext]",
+    "e2e": "tests/payment.e2e.test.[ext]"
   },
-  "budgetUsage": {
-    "integration": "2/3",
-    "e2e": "1/2"
-  }
+  "budgetUsage": { "integration": "2/3", "e2e": "1/2" },
+  "e2eAbsenceReason": null
 }
 ```
+
+**When no E2E tests are emitted:**
+```json
+{
+  "status": "completed",
+  "feature": "payment",
+  "generatedFiles": {
+    "integration": "tests/payment.int.test.[ext]",
+    "e2e": null
+  },
+  "budgetUsage": { "integration": "2/3", "e2e": "0/2" },
+  "e2eAbsenceReason": "no_multi_step_journey"
+}
+```
+
+**When no integration tests are emitted:**
+```json
+{
+  "status": "completed",
+  "feature": "config-update",
+  "generatedFiles": {
+    "integration": null,
+    "e2e": null
+  },
+  "budgetUsage": { "integration": "0/3", "e2e": "0/2" },
+  "e2eAbsenceReason": "no_multi_step_journey"
+}
+```
+
+**Contract**: Both `generatedFiles.integration` and `generatedFiles.e2e` are always present as keys. Value is a file path string when generated, `null` when not generated. `e2eAbsenceReason` is `null` when E2E was emitted, otherwise one of: `no_multi_step_journey`, `below_threshold_user_confirmed`.
 
 ## Test Meta Information Assignment
 
@@ -228,7 +266,7 @@ These annotations are used when planning and prioritizing test implementation.
 - Stay within test budget; report if budget insufficient for critical tests
 
 **Quality Standards**:
-- Generate tests corresponding to high-ROI ACs only
+- Select tests by ROI ranking within budget (integration: top 3 by ROI; E2E: reserved slot for user-facing journeys + additional by ROI > 50)
 - Apply behavior-first filtering strictly
 - Eliminate duplicate coverage (use Grep to check existing tests)
 - Clarify dependencies explicitly
@@ -238,14 +276,16 @@ These annotations are used when planning and prioritizing test implementation.
 
 ### Auto-processable
 - **Directory Absent**: Auto-create appropriate directory following detected test structure
-- **No High-ROI Tests**: Valid outcome - report "All ACs below ROI threshold or covered by existing tests"
+- **No High-ROI Integration Tests**: Valid outcome - report "All ACs below ROI threshold or covered by existing tests"
+- **No E2E Tests (no multi-step journey)**: Valid outcome - report "No multi-step user journey detected; E2E tests not applicable"
 - **Budget Exceeded by Critical Test**: Report to user
 
 ### Escalation Required
 1. **Critical**: AC absent, Design Doc absent → Error termination
-2. **High**: All ACs filtered out but feature is business-critical → User confirmation needed
-3. **Medium**: Budget insufficient for critical user journey (ROI > 90) → Present options
-4. **Low**: Multiple interpretations possible but minor impact → Adopt interpretation + note in report
+2. **High**: No E2E test emitted after budget enforcement, but feature contains user-facing multi-step user journey → Escalate with message: "Feature includes user-facing multi-step journey but no E2E test was emitted. Journey candidates evaluated: [list with ROI scores]. Confirm whether to proceed without E2E." (Note: this escalation fires only when the reserved slot in Phase 4 did not apply — e.g., no journey candidate passed Phase 1-3 filtering. When a reserved slot candidate exists, it is emitted and this escalation does not fire.)
+3. **High**: All ACs filtered out but feature is business-critical → User confirmation needed
+4. **Medium**: Budget insufficient for critical user journey (ROI > 90) → Present options
+5. **Low**: Multiple interpretations possible but minor impact → Adopt interpretation + note in report
 
 ## Technical Specifications
 
