@@ -188,10 +188,10 @@ graph TB
 ```mermaid
 graph LR
     P[🐛 Problem] --> INV[🔍 investigator]
-    INV --> |Evidence Matrix| ASS{Complex?}
-    ASS --> |Yes| VER[⚖️ verifier]
-    ASS --> |No| SOL[💡 solver]
-    VER --> |Validated Conclusion| SOL
+    INV --> |Failure Points| VER[⚖️ verifier]
+    VER --> |Coverage Check| COV{Sufficient?}
+    COV --> |Yes| SOL[💡 solver]
+    COV --> |No| INV
     SOL --> |Solutions + Steps| R[📋 Report]
 ```
 
@@ -283,8 +283,8 @@ These agents work the same way whether you're building a REST API or a React app
 | **code-reviewer** | Checks your code against design docs to make sure nothing's missing |
 | **document-reviewer** | Reviews single document quality, completeness, and rule compliance |
 | **design-sync** | Verifies consistency across multiple Design Docs and detects conflicts |
-| **investigator** | Collects evidence, enumerates hypotheses, builds evidence matrix for problem diagnosis |
-| **verifier** | Validates investigation results using ACH and Devil's Advocate methods |
+| **investigator** | Maps execution paths, identifies failure points with causal chains for problem diagnosis |
+| **verifier** | Validates failure points, checks path coverage using Devil's Advocate method |
 | **solver** | Generates solutions with tradeoff analysis and implementation steps |
 | **security-reviewer** | Reviews implementation for security compliance after all tasks complete |
 | **claude-md-generator** | Generates a CLAUDE.md from scratch by analyzing project structure, tech stack, and commands |
@@ -435,9 +435,9 @@ UI Spec bridges this by capturing component states, interactions, and acceptance
 /recipe-diagnose "API returns 500 error on user login"
 
 # What happens:
-# 1. Investigator collects evidence from code, logs, git history
-# 2. Builds evidence matrix with multiple hypotheses
-# 3. Verifier validates findings with ACH and Devil's Advocate
+# 1. Investigator maps execution paths and identifies failure points
+# 2. Verifier checks path coverage and validates each failure point
+# 3. Re-investigates if coverage is insufficient (up to 2 iterations)
 # 4. Solver generates solutions with tradeoff analysis
 # 5. Presents actionable implementation steps
 ```
