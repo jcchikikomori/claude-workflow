@@ -96,7 +96,7 @@ Autonomous sub-agents require scope constraints for stable execution. ALWAYS app
 ### Task Execution Quality Cycle (4-Step Cycle per Task)
 
 **Per-task cycle** (complete each task before starting next):
-1. **Agent tool** (subagent_type: "dev-workflows:task-executor") → Pass task file path in prompt, receive structured response
+1. **Agent tool** (subagent_type: "dev:task-executor") → Pass task file path in prompt, receive structured response
 2. Check task-executor response:
    - `status: escalation_needed` or `blocked` → Escalate to user
    - `requiresTestReview` is `true` → Execute **integration-test-reviewer** (subagent_type: "qa-workflows:integration-test-reviewer")
@@ -114,8 +114,8 @@ Autonomous sub-agents require scope constraints for stable execution. ALWAYS app
 After all task cycles finish, run verification agents **in parallel** before the completion report:
 
 1. **Invoke both in parallel** using Agent tool:
-   - code-verifier (subagent_type: "dev-workflows:code-verifier") → `doc_type: design-doc`, Design Doc path, `code_paths`: implementation file list (`git diff --name-only main...HEAD`)
-   - security-reviewer (subagent_type: "dev-workflows:security-reviewer") → Design Doc path, implementation file list
+   - code-verifier (subagent_type: "dev:code-verifier") → `doc_type: design-doc`, Design Doc path, `code_paths`: implementation file list (`git diff --name-only main...HEAD`)
+   - security-reviewer (subagent_type: "dev:security-reviewer") → Design Doc path, implementation file list
 
 2. **Consolidate results** — check pass/fail for each:
    - code-verifier: **pass** when `status` is `consistent` or `mostly_consistent`. **fail** when `needs_review` or `inconsistent`. Collect `discrepancies` with status `drift`, `conflict`, or `gap`
@@ -131,7 +131,7 @@ After all task cycles finish, run verification agents **in parallel** before the
 4. **All passed** → Proceed to completion report
 
 ### Test Information Communication
-After qa-workflows:acceptance-test-generator execution, when invoking work-planner (subagent_type: "dev-workflows:work-planner"), communicate:
+After qa-workflows:acceptance-test-generator execution, when invoking work-planner (subagent_type: "dev:work-planner"), communicate:
 - Generated integration test file path (from `generatedFiles.integration`)
 - Generated E2E test file path or null (from `generatedFiles.e2e`)
 - E2E absence reason (from `e2eAbsenceReason`, when E2E is null)

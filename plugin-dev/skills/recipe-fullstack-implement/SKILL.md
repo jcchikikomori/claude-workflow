@@ -53,7 +53,7 @@ Before creating the frontend Design Doc, create a UI Specification:
 - **[STOP]**: Wait for user response about prototype code availability
 
 Then invoke **ui-spec-designer**:
-- `subagent_type: "dev-workflows-frontend:ui-spec-designer"`
+- `subagent_type: "dev:ui-spec-designer"`
 - If prototype provided: `prompt: "Create UI Spec from PRD at [path]. Prototype code is at [user-provided path]."`
 - If no prototype: `prompt: "Create UI Spec from PRD at [path]. No prototype code available."`
 
@@ -66,7 +66,7 @@ Invoke **document-reviewer** for UI Spec review, then **[STOP]** for user approv
 - **Frontend Design Doc must reference the approved UI Spec** (pass UI Spec path to technical-designer-frontend)
 - Execute document-reviewer once per Design Doc (separate invocations)
 - Run design-sync for cross-layer consistency verification
-- Pass all Design Docs to work-planner (subagent_type: "dev-workflows:work-planner") with vertical slicing instruction
+- Pass all Design Docs to work-planner (subagent_type: "dev:work-planner") with vertical slicing instruction
 
 ### 5. Register All Flow Steps Using TaskCreate (MANDATORY)
 
@@ -117,8 +117,8 @@ Autonomous sub-agents require scope constraints for stable execution. ALWAYS app
 
 **Agent routing by task filename** (see monorepo-flow.md reference):
 ```
-*-backend-task-*   → dev-workflows:task-executor + dev-workflows:quality-fixer
-*-frontend-task-*  → dev-workflows-frontend:task-executor-frontend + dev-workflows-frontend:quality-fixer-frontend
+*-backend-task-*   → dev:task-executor + dev:quality-fixer
+*-frontend-task-*  → dev:task-executor-frontend + dev:quality-fixer-frontend
 ```
 
 **Rules**:
@@ -135,8 +135,8 @@ Autonomous sub-agents require scope constraints for stable execution. ALWAYS app
 After all task cycles finish, run verification agents **in parallel** before the completion report:
 
 1. **Invoke both in parallel** using Agent tool:
-   - code-verifier (subagent_type: "dev-workflows:code-verifier") → invoke **once per Design Doc** (`doc_type: design-doc`, single `document_path`, `code_paths`: implementation file list from `git diff --name-only main...HEAD`)
-   - security-reviewer (subagent_type: "dev-workflows:security-reviewer") → Design Doc path(s), implementation file list
+   - code-verifier (subagent_type: "dev:code-verifier") → invoke **once per Design Doc** (`doc_type: design-doc`, single `document_path`, `code_paths`: implementation file list from `git diff --name-only main...HEAD`)
+   - security-reviewer (subagent_type: "dev:security-reviewer") → Design Doc path(s), implementation file list
 
 2. **Consolidate results** — check pass/fail for each:
    - code-verifier: **pass** when `status` is `consistent` or `mostly_consistent`. **fail** when `needs_review` or `inconsistent`. Collect `discrepancies` with status `drift`, `conflict`, or `gap`
@@ -152,7 +152,7 @@ After all task cycles finish, run verification agents **in parallel** before the
 4. **All passed** → Proceed to completion report
 
 ### Test Information Communication
-After qa-workflows:acceptance-test-generator execution, when invoking work-planner (subagent_type: "dev-workflows:work-planner"), communicate:
+After qa-workflows:acceptance-test-generator execution, when invoking work-planner (subagent_type: "dev:work-planner"), communicate:
 - Generated integration test file path (from `generatedFiles.integration`)
 - Generated E2E test file path or null (from `generatedFiles.e2e`)
 - E2E absence reason (from `e2eAbsenceReason`, when E2E is null)

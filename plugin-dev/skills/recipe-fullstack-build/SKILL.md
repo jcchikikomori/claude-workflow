@@ -62,7 +62,7 @@ Generate tasks from the work plan? (y/n):
 
 ### 2. Task Decomposition (if approved)
 Invoke task-decomposer using Agent tool:
-- `subagent_type`: "dev-workflows:task-decomposer"
+- `subagent_type`: "dev:task-decomposer"
 - `description`: "Decompose work plan"
 - `prompt`: "Read work plan at docs/plans/[plan-name].md and decompose into atomic tasks. Output: Individual task files in docs/plans/tasks/. Granularity: 1 task = 1 commit = independently executable. Use layer-aware naming: {plan}-backend-task-{n}.md, {plan}-frontend-task-{n}.md based on Target files paths."
 
@@ -88,9 +88,9 @@ Invoke task-decomposer using Agent tool:
 
 | Filename Pattern | Executor | Quality Fixer |
 |-----------------|----------|---------------|
-| `*-backend-task-*` | dev-workflows:task-executor | dev-workflows:quality-fixer |
-| `*-frontend-task-*` | dev-workflows-frontend:task-executor-frontend | dev-workflows-frontend:quality-fixer-frontend |
-| `*-task-*` (no layer prefix) | dev-workflows:task-executor | dev-workflows:quality-fixer (default) |
+| `*-backend-task-*` | dev:task-executor | dev:quality-fixer |
+| `*-frontend-task-*` | dev:task-executor-frontend | dev:quality-fixer-frontend |
+| `*-task-*` (no layer prefix) | dev:task-executor | dev:quality-fixer (default) |
 
 ### Task Execution (4-Step Cycle)
 
@@ -129,8 +129,8 @@ Verify task files exist per Pre-execution Checklist, then enter autonomous execu
 After all task cycles finish, run verification agents **in parallel** before the completion report:
 
 1. **Invoke both in parallel** using Agent tool:
-   - code-verifier (subagent_type: "dev-workflows:code-verifier") → invoke **once per Design Doc** (`doc_type: design-doc`, single `document_path`, `code_paths`: implementation file list from `git diff --name-only main...HEAD`)
-   - security-reviewer (subagent_type: "dev-workflows:security-reviewer") → Design Doc path(s), implementation file list
+   - code-verifier (subagent_type: "dev:code-verifier") → invoke **once per Design Doc** (`doc_type: design-doc`, single `document_path`, `code_paths`: implementation file list from `git diff --name-only main...HEAD`)
+   - security-reviewer (subagent_type: "dev:security-reviewer") → Design Doc path(s), implementation file list
 
 2. **Consolidate results** — check pass/fail for each:
    - code-verifier: **pass** when `status` is `consistent` or `mostly_consistent`. **fail** when `needs_review` or `inconsistent`. Collect `discrepancies` with status `drift`, `conflict`, or `gap`

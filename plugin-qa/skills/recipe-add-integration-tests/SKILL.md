@@ -57,7 +57,7 @@ Classify discovered documents by filename:
 ### Step 2: Skeleton Generation
 
 Invoke acceptance-test-generator using Agent tool:
-- `subagent_type`: "dev-workflows:acceptance-test-generator"
+- `subagent_type`: "dev:acceptance-test-generator"
 - `description`: "Generate test skeletons"
 - `prompt`: List only the documents that exist from Step 1:
   ```
@@ -110,8 +110,8 @@ Implement test cases defined in skeleton files.
 ### Step 4: Test Implementation
 
 For each task file from Step 3, invoke task-executor routed by filename pattern (per monorepo-flow.md):
-- `*-backend-task-*` → `subagent_type`: "dev-workflows:task-executor"
-- `*-frontend-task-*` → `subagent_type`: "dev-workflows-frontend:task-executor-frontend"
+- `*-backend-task-*` → `subagent_type`: "dev:task-executor"
+- `*-frontend-task-*` → `subagent_type`: "dev:task-executor-frontend"
 - `description`: "Implement integration tests"
 - `prompt`: "Task file: [task file path from Step 3]. Implement tests following the task file."
 
@@ -122,7 +122,7 @@ Execute one task file at a time through Steps 4→5→6→7 before starting the 
 ### Step 5: Test Review
 
 Invoke integration-test-reviewer using Agent tool:
-- `subagent_type`: "dev-workflows:integration-test-reviewer"
+- `subagent_type`: "dev:integration-test-reviewer"
 - `description`: "Review test quality"
 - `prompt`: "Review test quality. Test files: [paths from Step 4 testsAdded]. Skeleton files: [layer-specific paths from Step 2 generatedFiles matching current task's layer]"
 
@@ -135,16 +135,16 @@ Check Step 5 result:
 - `status: needs_revision` → Invoke task-executor with requiredFixes, then return to Step 5
 
 Invoke task-executor routed by task filename pattern:
-- `*-backend-task-*` → `subagent_type`: "dev-workflows:task-executor"
-- `*-frontend-task-*` → `subagent_type`: "dev-workflows-frontend:task-executor-frontend"
+- `*-backend-task-*` → `subagent_type`: "dev:task-executor"
+- `*-frontend-task-*` → `subagent_type`: "dev:task-executor-frontend"
 - `description`: "Fix review findings"
 - `prompt`: "Fix the following issues in test files: [requiredFixes from Step 5]"
 
 ### Step 7: Quality Check
 
 Invoke quality-fixer routed by task filename pattern:
-- `*-backend-task-*` → `subagent_type`: "dev-workflows:quality-fixer"
-- `*-frontend-task-*` → `subagent_type`: "dev-workflows-frontend:quality-fixer-frontend"
+- `*-backend-task-*` → `subagent_type`: "dev:quality-fixer"
+- `*-frontend-task-*` → `subagent_type`: "dev:quality-fixer-frontend"
 - `description`: "Final quality assurance"
 - `prompt`: "Final quality assurance for test files added in this workflow. Run all tests and verify coverage."
 

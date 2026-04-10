@@ -54,7 +54,7 @@ Generate tasks from the work plan? (y/n):
 
 ### 2. Task Decomposition (if approved)
 Invoke task-decomposer using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:task-decomposer"
+- `subagent_type`: "dev:task-decomposer"
 - `description`: "Decompose work plan"
 - `prompt`: "Read work plan at docs/plans/[plan-name].md and decompose into atomic tasks. Output: Individual task files in docs/plans/tasks/. Granularity: 1 task = 1 commit = independently executable"
 
@@ -79,7 +79,7 @@ Invoke task-decomposer using Agent tool:
 
 For EACH task, YOU MUST:
 1. **Register tasks using TaskCreate**: Register work steps. Always include: first "Confirm skill constraints", final "Verify skill fidelity"
-2. **Agent tool** (subagent_type: "dev-workflows-frontend:task-executor-frontend") → Pass task file path in prompt, receive structured response
+2. **Agent tool** (subagent_type: "dev:task-executor-frontend") → Pass task file path in prompt, receive structured response
 3. **CHECK task-executor-frontend response**:
    - `status: "escalation_needed"` or `"blocked"` → STOP and escalate to user
    - `requiresTestReview` is `true` → Execute **integration-test-reviewer** (subagent_type: "qa-workflows:integration-test-reviewer")
@@ -112,8 +112,8 @@ Verify task files exist per Pre-execution Checklist, then enter autonomous execu
 After all task cycles finish, run verification agents **in parallel** before the completion report:
 
 1. **Invoke both in parallel** using Agent tool:
-   - code-verifier (subagent_type: "dev-workflows-frontend:code-verifier") → `doc_type: design-doc`, Design Doc path, `code_paths`: implementation file list (`git diff --name-only main...HEAD`)
-   - security-reviewer (subagent_type: "dev-workflows-frontend:security-reviewer") → Design Doc path, implementation file list
+   - code-verifier (subagent_type: "dev:code-verifier") → `doc_type: design-doc`, Design Doc path, `code_paths`: implementation file list (`git diff --name-only main...HEAD`)
+   - security-reviewer (subagent_type: "dev:security-reviewer") → Design Doc path, implementation file list
 
 2. **Consolidate results** — check pass/fail for each:
    - code-verifier: **pass** when `status` is `consistent` or `mostly_consistent`. **fail** when `needs_review` or `inconsistent`. Collect `discrepancies` with status `drift`, `conflict`, or `gap`

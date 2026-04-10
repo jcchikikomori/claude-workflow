@@ -53,7 +53,7 @@ ls "$DESIGN_DOC"
 
 Invoke web-qa-reviewer using Agent tool:
 
-- `subagent_type`: "dev-workflows:web-qa-reviewer"
+- `subagent_type`: "dev:web-qa-reviewer"
 - `description`: "Browser QA inspection"
 - `prompt`: "Inspect the following URL and return structured findings. URL: [URL from Step 1]. Scope: [Design Doc path if provided, otherwise omit]"
 
@@ -83,7 +83,7 @@ Decision table:
 
 Invoke acceptance-test-generator using Agent tool:
 
-- `subagent_type`: "dev-workflows:acceptance-test-generator"
+- `subagent_type`: "dev:acceptance-test-generator"
 - `description`: "Generate test skeletons for QA findings"
 - `prompt`: "Generate test skeletons targeting the following critical/high QA findings. Design Doc: [Design Doc path]. Focus on ACs related to these findings: [list descriptions from critical_and_high]"
 

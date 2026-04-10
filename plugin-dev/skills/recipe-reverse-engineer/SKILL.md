@@ -61,7 +61,7 @@ Phase 2: Design Doc Generation (if requested)
 
 **Agent tool invocation**:
 ```
-subagent_type: dev-workflows:scope-discoverer
+subagent_type: dev:scope-discoverer
 description: "Discover functional scope"
 prompt: |
   Discover functional scope targets in the codebase.
@@ -90,7 +90,7 @@ prompt: |
 
 **Agent tool invocation**:
 ```
-subagent_type: dev-workflows:prd-creator
+subagent_type: dev:prd-creator
 description: "Generate PRD"
 prompt: |
   Create reverse-engineered PRD for the following feature.
@@ -116,7 +116,7 @@ prompt: |
 
 **Agent tool invocation**:
 ```
-subagent_type: dev-workflows:code-verifier
+subagent_type: dev:code-verifier
 description: "Verify PRD consistency"
 prompt: |
   Verify consistency between PRD and code implementation.
@@ -141,7 +141,7 @@ Note: Omit `code_paths` — the verifier independently discovers code scope from
 
 **Agent tool invocation**:
 ```
-subagent_type: dev-workflows:document-reviewer
+subagent_type: dev:document-reviewer
 description: "Review PRD"
 prompt: |
   Review the following PRD considering code verification findings.
@@ -168,7 +168,7 @@ prompt: |
 
 **Agent tool invocation**:
 ```
-subagent_type: dev-workflows:prd-creator
+subagent_type: dev:prd-creator
 description: "Revise PRD"
 prompt: |
   Update PRD based on review feedback and code verification results.
@@ -232,7 +232,7 @@ Map `$STEP_1_OUTPUT` units to Design Doc generation targets, carrying forward:
 
 **Agent tool invocation**:
 ```
-subagent_type: dev-workflows:technical-designer
+subagent_type: dev:technical-designer
 description: "Generate Design Doc"
 prompt: |
   Create Design Doc for the following feature based on existing code.
@@ -259,7 +259,7 @@ For each unit, invoke 7a then 7b sequentially (7b depends on 7a output):
 
 **7a. Backend Design Doc**:
 ```
-subagent_type: dev-workflows:technical-designer
+subagent_type: dev:technical-designer
 description: "Generate backend Design Doc"
 prompt: |
   Create a backend Design Doc for the following feature based on existing code.
@@ -283,7 +283,7 @@ prompt: |
 
 **7b. Frontend Design Doc**:
 ```
-subagent_type: dev-workflows-frontend:technical-designer-frontend
+subagent_type: dev:technical-designer-frontend
 description: "Generate frontend Design Doc"
 prompt: |
   Create a frontend Design Doc for the following feature based on existing code.
@@ -315,7 +315,7 @@ prompt: |
 
 **Agent tool invocation (per Design Doc)**:
 ```
-subagent_type: dev-workflows:code-verifier
+subagent_type: dev:code-verifier
 description: "Verify Design Doc consistency"
 prompt: |
   Verify consistency between Design Doc and code implementation.
@@ -335,7 +335,7 @@ Note: Omit `code_paths` — the verifier independently discovers code scope from
 
 **Agent tool invocation (per Design Doc)**:
 ```
-subagent_type: dev-workflows:document-reviewer
+subagent_type: dev:document-reviewer
 description: "Review Design Doc"
 prompt: |
   Review the following Design Doc considering code verification findings.
@@ -365,7 +365,7 @@ prompt: |
 
 **Agent tool invocation (per Design Doc)**:
 ```
-subagent_type: dev-workflows:technical-designer (or dev-workflows-frontend:technical-designer-frontend for frontend Design Docs)
+subagent_type: dev:technical-designer (or dev:technical-designer-frontend for frontend Design Docs)
 description: "Revise Design Doc"
 prompt: |
   Update Design Doc based on review feedback and code verification results.

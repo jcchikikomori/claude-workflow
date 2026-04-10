@@ -35,7 +35,7 @@ git diff --name-only main...HEAD
 
 ### Step 2: Execute code-reviewer
 Invoke code-reviewer using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:code-reviewer"
+- `subagent_type`: "dev:code-reviewer"
 - `description`: "Code compliance review"
 - `prompt`: "Design Doc: [path]. Implementation files: [git diff file list]. Review mode: full. Validate Design Doc compliance and return structured JSON report."
 
@@ -43,7 +43,7 @@ Invoke code-reviewer using Agent tool:
 
 ### Step 3: Execute security-reviewer
 Invoke security-reviewer using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:security-reviewer"
+- `subagent_type`: "dev:security-reviewer"
 - `description`: "Security review"
 - `prompt`: "Design Doc: [path]. Implementation files: [git diff file list]. Review security compliance."
 
@@ -101,28 +101,28 @@ Include both code compliance issues and security requiredFixes.
 ### Step 7: Execute Fixes
 
 Invoke task-executor-frontend using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:task-executor-frontend"
+- `subagent_type`: "dev:task-executor-frontend"
 - `description`: "Execute review fixes"
 - `prompt`: "Task file: docs/plans/tasks/review-fixes-YYYYMMDD.md. Apply staged fixes (stops at 5 files)."
 
 ### Step 8: Quality Check
 
 Invoke quality-fixer-frontend using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:quality-fixer-frontend"
+- `subagent_type`: "dev:quality-fixer-frontend"
 - `description`: "Quality gate check"
 - `prompt`: "Confirm quality gate passage for fixed files."
 
 ### Step 9: Re-validate code-reviewer
 
 Invoke code-reviewer using Agent tool:
-- `subagent_type`: "dev-workflows-frontend:code-reviewer"
+- `subagent_type`: "dev:code-reviewer"
 - `description`: "Re-validate compliance"
 - `prompt`: "Re-validate Design Doc compliance after fixes. Design Doc: [path]. Implementation files: [file list]. Prior compliance issues: $STEP_2_OUTPUT. Verify each prior issue is resolved."
 
 ### Step 10: Re-validate security-reviewer
 
 Invoke security-reviewer using Agent tool (only if security fixes were applied):
-- `subagent_type`: "dev-workflows-frontend:security-reviewer"
+- `subagent_type`: "dev:security-reviewer"
 - `description`: "Re-validate security"
 - `prompt`: "Re-validate security after fixes. Prior findings: $STEP_3_OUTPUT. Design Doc: [path]. Implementation files: [file list]."
 

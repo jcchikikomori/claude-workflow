@@ -45,7 +45,7 @@ Follow the planning process below:
 
 ### Step 3: Work Plan Creation
 Invoke work-planner using Agent tool:
-- `subagent_type`: "dev-workflows:work-planner"
+- `subagent_type`: "dev:work-planner"
 - `description`: "Work plan creation"
 - If test skeletons were generated in Step 2:
   - When `generatedFiles.e2e` is not null:

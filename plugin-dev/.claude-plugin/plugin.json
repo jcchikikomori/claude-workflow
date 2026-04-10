@@ -1,7 +1,7 @@
 {
-  "name": "dev-workflows",
+  "name": "dev",
   "version": "0.16.14-jcc.3",
-  "description": "Skills + Subagents for backend development - Use skills for coding guidance, or run recipe workflows for full orchestrated agentic coding with specialized agents",
+  "description": "Skills + Subagents for development — covers web, mobile, and integrations. Use skills for coding guidance, or run recipe workflows for full orchestrated agentic coding with backend, frontend, and full-stack agent variants.",
   "author": {
     "name": "John Cyrill Corsanes",
     "url": "https://github.com/jcchikikomori"
@@ -26,6 +26,7 @@
   "agents": [
     "./agents/claude-md-generator.md",
     "./agents/code-reviewer.md",
+    "./agents/pr-creator.md",
     "./agents/codebase-analyzer.md",
     "./agents/code-verifier.md",
     "./agents/design-sync.md",

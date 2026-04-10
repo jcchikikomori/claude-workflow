@@ -50,7 +50,7 @@ Stop if directory does not exist.
 
 Invoke codebase-analyzer using Agent tool:
 
-- `subagent_type`: "dev-workflows:codebase-analyzer"
+- `subagent_type`: "dev:codebase-analyzer"
 - `description`: "Analyze project for CLAUDE.md generation"
 - `prompt`: |
   Analyze the codebase at [PROJECT_ROOT] for CLAUDE.md generation purposes.
@@ -63,7 +63,7 @@ Store output as `$STEP_2_OUTPUT`.
 
 Invoke claude-md-generator using Agent tool:
 
-- `subagent_type`: "dev-workflows:claude-md-generator"
+- `subagent_type`: "dev:claude-md-generator"
 - `description`: "Generate CLAUDE.md"
 - `prompt`: |
   Generate CLAUDE.md for the project at [PROJECT_ROOT].
@@ -81,7 +81,7 @@ Check response:
 
 Invoke document-reviewer using Agent tool:
 
-- `subagent_type`: "dev-workflows:document-reviewer"
+- `subagent_type`: "dev:document-reviewer"
 - `description`: "Review generated CLAUDE.md"
 - `prompt`: |
   Review the generated CLAUDE.md at [PROJECT_ROOT]/CLAUDE.md.

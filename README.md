@@ -62,6 +62,7 @@ For fullstack projects:
 | `env-guard` | behavior-control | Hook enforcement to prevent leaking `.env` and secrets |
 | `metronome` | behavior-control | Detects shortcut-taking and nudges Claude to proceed step by step |
 | `discover` | product-quality | Turns feature ideas into evidence-backed PRDs through structured discovery |
+| `caveman` | behavior-control | A plugin that makes agent talk like caveman |
 
 The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, build, and verify software using AI agents. Install the `skills` plugin from [skills-md](https://github.com/jcchikikomori/skills-md) for language/framework-specific rules (Ruby, Python, React, Node.js, Docker, etc.).
 
