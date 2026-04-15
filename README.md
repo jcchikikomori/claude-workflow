@@ -11,7 +11,7 @@
 
 ## ⚡ Quick Start
 
-> **Windows:** Git doesn't create symlinks by default. Clone with `git clone -c core.symlinks=true` in an admin PowerShell, then install plugins from the local clone. Admin is only needed for initial setup.
+> **Windows:** Git doesn't create symlinks by default. Use WSL, or clone with `git clone -c core.symlinks=true` in an admin PowerShell, then install plugins from the local clone. Admin is only needed for initial setup.
 
 This marketplace includes the following plugins:
 
