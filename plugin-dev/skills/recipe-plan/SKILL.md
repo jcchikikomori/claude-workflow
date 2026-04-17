@@ -38,10 +38,19 @@ Follow the planning process below:
    - Check for existence of design documents, notify user if none exist
    - Present options if multiple exist (can be specified with $ARGUMENTS)
 
-### Step 2: E2E Test Skeleton Generation Confirmation
-   - Confirm with user whether to generate E2E test skeleton first
-   - If user wants generation: Generate test skeleton with acceptance-test-generator
-   - Pass generation results to next process according to subagents-orchestration-guide skill coordination specification
+### Step 2: Test Skeleton Generation Confirmation
+
+Confirm with user whether to generate test skeletons (integration + E2E) first.
+
+If user wants generation:
+
+- Check for UI Spec: `ls docs/ui-spec/*.md 2>/dev/null | tail -1`
+- Invoke acceptance-test-generator using Agent tool:
+  - `subagent_type`: "qa-workflows:acceptance-test-generator"
+  - `description`: "Test skeleton generation"
+  - If UI Spec exists: `prompt`: "Generate test skeletons from Design Doc at [path]. UI Spec at [ui-spec path]."
+  - If no UI Spec: `prompt`: "Generate test skeletons from Design Doc at [path]."
+- Pass integration test file path, E2E test file path (or null), and `e2eAbsenceReason` to work-planner (Step 3)
 
 ### Step 3: Work Plan Creation
 Invoke work-planner using Agent tool:
@@ -62,6 +71,7 @@ Invoke work-planner using Agent tool:
 
 ## Response at Completion
 **Recommended**: End with the following standard response after plan content approval
+
 ```
 Planning phase completed.
 - Work plan: docs/plans/[plan-name].md

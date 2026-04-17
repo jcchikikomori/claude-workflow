@@ -6,9 +6,16 @@ disable-model-invocation: true
 
 **Context**: Post-implementation quality assurance
 
+## Layer Detection
+
+Determine fix agent pair from `$ARGUMENTS` or Design Doc path:
+
+- `$ARGUMENTS` contains `--frontend` **or** Design Doc path matches `*frontend*` → use `task-executor-frontend` + `quality-fixer-frontend`
+- Otherwise → use `task-executor` + `quality-fixer` (default)
+
 ## Orchestrator Definition
 
-**Core Identity**: "I am an orchestrator."
+**Core Identity**: "I am an orchestrator." (see subagents-orchestration-guide skill)
 
 **First Action**: Register Steps 1-11 using TaskCreate before any execution.
 
@@ -16,8 +23,8 @@ disable-model-invocation: true
 
 - Compliance validation → performed by code-reviewer
 - Security validation → performed by security-reviewer
-- Fix implementation → performed by task-executor
-- Quality checks → performed by quality-fixer
+- Fix implementation → performed by task-executor **or** task-executor-frontend (see Layer Detection)
+- Quality checks → performed by quality-fixer **or** quality-fixer-frontend (see Layer Detection)
 - Re-validation → performed by code-reviewer / security-reviewer
 
 Orchestrator invokes sub-agents and passes structured JSON between them.
@@ -102,15 +109,19 @@ Include both code compliance issues and security requiredFixes.
 
 ### Step 7: Execute Fixes
 
-Invoke task-executor using Agent tool:
-- `subagent_type`: "dev:task-executor"
+Invoke task-executor (layer-appropriate) using Agent tool:
+
+- Frontend layer: `subagent_type`: "dev:task-executor-frontend"
+- Default: `subagent_type`: "dev:task-executor"
 - `description`: "Execute review fixes"
 - `prompt`: "Task file: docs/plans/tasks/review-fixes-YYYYMMDD.md. Apply staged fixes (stops at 5 files)."
 
 ### Step 8: Quality Check
 
-Invoke quality-fixer using Agent tool:
-- `subagent_type`: "dev:quality-fixer"
+Invoke quality-fixer (layer-appropriate) using Agent tool:
+
+- Frontend layer: `subagent_type`: "dev:quality-fixer-frontend"
+- Default: `subagent_type`: "dev:quality-fixer"
 - `description`: "Quality gate check"
 - `prompt`: "Confirm quality gate passage for fixed files."
 

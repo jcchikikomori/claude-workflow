@@ -4,7 +4,22 @@ description: Orchestrate the complete implementation lifecycle from requirements
 disable-model-invocation: true
 ---
 
-**Context**: Full-cycle implementation management (Requirements Analysis → Design → Planning → Implementation → Quality Assurance)
+**Context**: Full-cycle implementation management (Requirements Analysis → Design → Planning → Implementation → Quality Assurance). Supports single-layer (backend or frontend) and fullstack projects.
+
+## Layer Detection
+
+After requirement-analyzer runs, check `affectedLayers`:
+
+- Contains both `backend` AND `frontend` → **fullstack path**: read `references/monorepo-flow.md` from subagents-orchestration-guide skill, add UI Spec phase, add design-sync, use filename-based agent routing
+- Single layer → **standard path**: use task-executor + quality-fixer (backend) or task-executor-frontend + quality-fixer-frontend (frontend only)
+
+## Agent Routing Table (Fullstack Path)
+
+| Filename Pattern | Executor | Quality Fixer |
+|---|---|---|
+| `*-backend-task-*` | dev:task-executor | dev:quality-fixer |
+| `*-frontend-task-*` | dev:task-executor-frontend | dev:quality-fixer-frontend |
+| no layer prefix | dev:task-executor | dev:quality-fixer (default) |
 
 ## Orchestrator Definition
 
@@ -67,6 +82,9 @@ When user responds to questions:
 ## Subagents Orchestration Guide Compliance Execution
 
 **Pre-execution Checklist (MANDATORY)**:
+
+- [ ] Confirmed layer detection result (standard vs fullstack)
+- [ ] (Fullstack) Read `references/monorepo-flow.md` from subagents-orchestration-guide skill
 - [ ] Confirmed relevant subagents-orchestration-guide skill flow
 - [ ] Identified current progress position
 - [ ] Clarified next step
@@ -78,8 +96,11 @@ When user responds to questions:
   - Other environments (tests, quality tools) → Subagents will escalate
 
 **Required Flow Compliance**:
-- Run quality-fixer before every commit
+
+- Run layer-appropriate quality-fixer before every commit
 - Obtain user approval before Edit/Write/MultiEdit outside autonomous mode
+- (Fullstack) Ask user about prototype code before UI Spec phase: "Do you have prototype code for this feature? Path will be placed in `docs/ui-spec/assets/`."
+- (Fullstack) Run design-sync after all Design Docs created
 
 ## CRITICAL Sub-agent Invocation Constraints
 
@@ -95,15 +116,18 @@ Autonomous sub-agents require scope constraints for stable execution. ALWAYS app
 
 ### Task Execution Quality Cycle (4-Step Cycle per Task)
 
+Route executor and quality-fixer by layer (see Agent Routing Table above for fullstack; standard path uses single agent pair).
+
 **Per-task cycle** (complete each task before starting next):
-1. **Agent tool** (subagent_type: "dev:task-executor") → Pass task file path in prompt, receive structured response
-2. Check task-executor response:
+
+1. **Agent tool** (subagent_type per Agent Routing Table) → Pass task file path in prompt, receive structured response
+2. Check executor response:
    - `status: escalation_needed` or `blocked` → Escalate to user
    - `requiresTestReview` is `true` → Execute **integration-test-reviewer** (subagent_type: "qa-workflows:integration-test-reviewer")
      - `needs_revision` → Return to step 1 with `requiredFixes`
      - `approved` → Proceed to step 3
    - Otherwise → Proceed to step 3
-3. quality-fixer → Quality check and fixes. **Always pass** the current task file path as `task_file`
+3. layer-appropriate quality-fixer → Quality check and fixes. **Always pass** the current task file path as `task_file`
    - `stub_detected` → Return to step 1 with `incompleteImplementations[]` details
    - `blocked` → Escalate to user
    - `approved` → Proceed to step 4
@@ -124,7 +148,7 @@ After all task cycles finish, run verification agents **in parallel** before the
 
 3. **Fix cycle** (when any verifier failed):
    - Consolidate all actionable findings into a single task file
-   - Execute task-executor with consolidated fixes → quality-fixer
+   - Execute layer-appropriate executor with consolidated fixes → layer-appropriate quality-fixer
    - Re-run only the failed verifiers (by the criteria in step 2)
    - Repeat until all pass or `blocked` → Escalate to user
 

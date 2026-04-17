@@ -4,17 +4,29 @@ description: Execute decomposed tasks in autonomous execution mode
 disable-model-invocation: true
 ---
 
+## Agent Routing Table
+
+Route executor and quality-fixer by task filename pattern:
+
+| Filename Pattern | Executor | Quality Fixer |
+|---|---|---|
+| `*-backend-task-*` | dev:task-executor | dev:quality-fixer |
+| `*-frontend-task-*` | dev:task-executor-frontend | dev:quality-fixer-frontend |
+| no layer prefix | dev:task-executor | dev:quality-fixer (default) |
+
+Single-layer projects use the default route. Fullstack projects route automatically by filename.
+
 ## Orchestrator Definition
 
 **Core Identity**: "I am an orchestrator." (see subagents-orchestration-guide skill)
 
 **Execution Protocol**:
 1. **Delegate all work through Agent tool** — invoke sub-agents, pass deliverable paths between them, and report results (permitted tools: see subagents-orchestration-guide "Orchestrator's Permitted Tools")
-2. **Follow the 4-step task cycle exactly**: task-executor → escalation check → quality-fixer → commit
+2. **Follow the 4-step task cycle exactly**: executor (layer-appropriate) → escalation check → quality-fixer (layer-appropriate) → commit
 3. **Enter autonomous mode** when user provides execution instruction with existing task files — this IS the batch approval
 4. **Scope**: Complete when all tasks are committed or escalation occurs
 
-**CRITICAL**: Run quality-fixer before every commit.
+**CRITICAL**: Run layer-appropriate quality-fixer before every commit.
 
 Work plan: $ARGUMENTS
 
@@ -75,25 +87,27 @@ Invoke task-decomposer using Agent tool:
   - Other environments (tests, quality tools) → Subagents will escalate
 
 ## Task Execution Cycle (4-Step Cycle)
-**MANDATORY EXECUTION CYCLE**: `task-executor → escalation check → quality-fixer → commit`
+
+**MANDATORY EXECUTION CYCLE**: `executor (layer-appropriate) → escalation check → quality-fixer (layer-appropriate) → commit`
 
 For EACH task, YOU MUST:
+
 1. **Register tasks using TaskCreate**: Register work steps. Always include: first "Confirm skill constraints", final "Verify skill fidelity"
-2. **Agent tool** (subagent_type: "dev:task-executor") → Pass task file path in prompt, receive structured response
-3. **CHECK task-executor response**:
+2. **Agent tool** (subagent_type per Agent Routing Table above) → Pass task file path in prompt, receive structured response
+3. **CHECK executor response**:
    - `status: "escalation_needed"` or `"blocked"` → STOP and escalate to user
    - `requiresTestReview` is `true` → Execute **integration-test-reviewer** (subagent_type: "qa-workflows:integration-test-reviewer")
      - `needs_revision` → Return to step 2 with `requiredFixes`
      - `approved` → Proceed to step 4
    - `readyForQualityCheck: true` → Proceed to step 4
-4. **INVOKE quality-fixer**: Execute all quality checks and fixes. **Always pass** the current task file path as `task_file`
+4. **INVOKE quality-fixer** (layer-appropriate per Agent Routing Table): Execute all quality checks and fixes. **Always pass** the current task file path as `task_file`
 5. **CHECK quality-fixer response**:
    - `stub_detected` → Return to step 2 with `incompleteImplementations[]` details
    - `blocked` → STOP and escalate to user
    - `approved` → Proceed to step 6
 6. **COMMIT on approval**: Execute git commit
 
-**CRITICAL**: Parse every sub-agent response for status fields. Execute the matching branch in the 4-step cycle. Proceed to next task only after quality-fixer returns `approved`.
+**CRITICAL**: Parse every sub-agent response for status fields. Execute the matching branch in the 4-step cycle. Proceed to next task only after layer-appropriate quality-fixer returns `approved`.
 
 ## Sub-agent Invocation Constraints
 
@@ -122,7 +136,7 @@ After all task cycles finish, run verification agents **in parallel** before the
 
 3. **Fix cycle** (when any verifier failed):
    - Consolidate all actionable findings into a single task file
-   - Execute task-executor with consolidated fixes → quality-fixer
+   - Execute layer-appropriate executor with consolidated fixes → layer-appropriate quality-fixer
    - Re-run only the failed verifiers (by the criteria in step 2)
    - Repeat until all pass or `blocked` → Escalate to user
 
