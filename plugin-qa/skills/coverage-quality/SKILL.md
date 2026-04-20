@@ -184,3 +184,4 @@ Always ensure `.coverage-snapshot/` is in `.gitignore`. Never commit baseline sn
 | Parser script missing | Stop: "Parser script missing. Reinstall the qa plugin." |
 | No baseline + comparison requested | Continue as first-run, inform user |
 | Baseline commit not in git history | Continue with full file list, warn user to update baseline |
+| Ruby: 0 lines tracked (vacuous 100%) | Show `warning_hints` prominently. Suggest running full suite: `bundle exec rspec spec/` |

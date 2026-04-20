@@ -119,6 +119,34 @@ mvn test jacoco:report
 
 **Output file**: `target/site/jacoco/jacoco.xml`
 
+### Common Issues — Ruby
+
+**`local_gems/` not tracked**
+
+SimpleCov's `'rails'` profile only instruments `app/`, `lib/`, `config/`. Projects with source under `local_gems/` need explicit config in `spec/rails_helper.rb` or `.simplecov`:
+
+```ruby
+SimpleCov.start 'rails' do
+  add_group 'Local Gems', 'local_gems'
+end
+```
+
+**Single-file filter producing empty coverage**
+
+When one spec file is run, RSpec may add a filter keeping only the matching source file — which itself may be excluded by the SimpleCov profile. Result: `.resultset.json` has an empty `coverage` hash → parser reports `0/0 (100%)`.
+
+Fix: run a directory or full suite:
+
+```bash
+bundle exec rspec spec/local_gems/portals_bff/
+# or
+bundle exec rspec spec/
+```
+
+Both issues produce `warning: "empty_coverage"` in the unified JSON. The skill and hook surface this prominently instead of reporting a misleading 100%.
+
+---
+
 **Parse approach** (XML via `xml.etree.ElementTree`):
 - Each `<sourcefile>` in a `<package>`: path = `package/@name + "/" + sourcefile/@name`
 - `<counter type="LINE">` attributes: `missed` + `covered` = `lines_total`

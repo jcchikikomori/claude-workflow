@@ -46,6 +46,20 @@ python3 "$SCRIPT_DIR/parse_coverage.py" \
     --commit "$COMMIT" \
     --output ".coverage-snapshot/latest.json" 2>/dev/null || exit 0
 
+# Surface warning immediately if coverage is vacuous (e.g. empty SimpleCov result)
+WARNING=$(python3 -c "
+import json
+try:
+    print(json.load(open('.coverage-snapshot/latest.json')).get('warning', ''))
+except Exception:
+    print('')
+" 2>/dev/null || echo "")
+
+if [ "$WARNING" = "empty_coverage" ]; then
+    echo "[coverage-quality] ⚠️  0 lines tracked — SimpleCov may be excluding source files. Run full suite for real coverage."
+    exit 0
+fi
+
 # Compare vs baseline if one exists
 if [ -f ".coverage-snapshot/baseline.json" ]; then
     BASELINE_COMMIT=$(python3 -c "

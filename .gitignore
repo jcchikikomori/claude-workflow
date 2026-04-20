@@ -37,6 +37,9 @@ temp/
 .env.local
 .env.*.local
 
+# Skill evals (may contain sensitive project/client data)
+plugin-*/skills/*/evals/
+
 # Misc
 *.bak
 *.backup

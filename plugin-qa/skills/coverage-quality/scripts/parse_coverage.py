@@ -110,7 +110,22 @@ def parse_ruby(commit: str) -> dict:
         "lines_hit": hit_all,
         "percent": percent(hit_all, total_all),
     }
-    return build_unified("ruby", commit, overall, files)
+    result = build_unified("ruby", commit, overall, files)
+
+    if total_all == 0:
+        hints = []
+        if os.path.isdir("local_gems"):
+            hints.append(
+                "local_gems/ dir found but not tracked — add "
+                "`add_group 'Local Gems', 'local_gems'` to SimpleCov config"
+            )
+        hints.append(
+            "single-file filter may be active — run full suite instead of one spec file"
+        )
+        result["warning"] = "empty_coverage"
+        result["warning_hints"] = hints
+
+    return result
 
 
 def parse_istanbul(stack: str, commit: str) -> dict:
@@ -317,9 +332,14 @@ def main():
     with open(args.output, "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"Parsed {len(result['files'])} files → {args.output}")
-    print(f"Overall: {result['overall']['percent']}% "
-          f"({result['overall']['lines_hit']}/{result['overall']['lines_total']} lines)")
+    if result.get("warning") == "empty_coverage":
+        print("WARNING: 0 lines tracked — coverage data is empty.")
+        for hint in result.get("warning_hints", []):
+            print(f"  • {hint}")
+    else:
+        print(f"Parsed {len(result['files'])} files → {args.output}")
+        print(f"Overall: {result['overall']['percent']}% "
+              f"({result['overall']['lines_hit']}/{result['overall']['lines_total']} lines)")
 
 
 if __name__ == "__main__":
