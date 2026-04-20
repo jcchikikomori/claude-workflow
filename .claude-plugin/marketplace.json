@@ -9,7 +9,7 @@
   },
   "plugins": [
     {
-      "name": "skills",
+      "name": "skills-md",
       "source": {
         "source": "url",
         "url": "https://github.com/jcchikikomori/skills-md.git"
