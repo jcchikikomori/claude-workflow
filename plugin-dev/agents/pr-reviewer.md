@@ -32,6 +32,35 @@ const name = user?.name ?? 'Unknown';
 
 If no single-line fix applies (e.g. architectural issues), omit the code block and keep text only.
 
+### Comment Labels (Conventional Comments)
+
+All findings are formatted using [Conventional Comments](https://conventionalcomments.org/) when displayed or posted as inline GitHub comments. The recipe derives the label from `severity` and `category`:
+
+| `severity` | `category` | Label | Decoration |
+|------------|------------|-------|------------|
+| `critical` | `security` | `issue` | `(blocking, security)` |
+| `critical` | any other | `issue` | `(blocking)` |
+| `major` | any | `issue` | _(none)_ |
+| `minor` | any | `nitpick` | `(non-blocking)` |
+| `suggestion` | any | `suggestion` | _(none)_ |
+
+Format: `label (decorations): subject` — e.g. `issue (blocking): Null deref if user not found`
+
+The `suggestion` text line (≤10 words) is the subject after the label. The ` ```suggestion ` code block follows on a new line.
+
+**Example — critical logic finding:**
+```
+issue (blocking): Null deref if user not found
+```suggestion
+const name = user?.name ?? 'Unknown';
+```
+```
+
+**Example — minor standards finding:**
+```
+nitpick (non-blocking): Extract validate/normalize/persist
+```
+
 ## Initial Required Tasks
 
 **Task Registration**: Register work steps using TaskCreate. Always include: first "Confirm skill constraints", final "Verify skill fidelity". Update status using TaskUpdate upon completion.

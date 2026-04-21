@@ -128,7 +128,14 @@ Instructions:
 
 ### Step 6: Present Structured Report
 
-Parse `$REVIEW_OUTPUT` and render:
+Parse `$REVIEW_OUTPUT` and render using [Conventional Comments](https://conventionalcomments.org/) labels:
+
+Label mapping from `severity` + `category`:
+- `critical` + `security` → `issue (blocking, security):`
+- `critical` other → `issue (blocking):`
+- `major` → `issue:`
+- `minor` → `nitpick (non-blocking):`
+- `suggestion` → `suggestion:`
 
 ```
 ## PR Review: [title]
@@ -143,10 +150,10 @@ Verdict: [APPROVE / REQUEST CHANGES / COMMENT]
 
 [Group by severity: critical → major → minor → suggestion]
 
-**[SEVERITY]** `[file]:[line]` — [category]
-> [description]
-> Rationale: [rationale]
-> Suggestion: [suggestion]
+[label (decorations)]: [description]
+  `[file]:[line]` | [category]
+  > [rationale]
+  > Fix: [suggestion text]
 
 ---
 
@@ -167,7 +174,7 @@ If user selects `y`:
 2. For each finding with a `file` and `line`, add inline comment: `mcp__github__add_comment_to_pending_review`
    - `path`: finding.file
    - `line`: finding.line
-   - `body`: "**[severity] [category]**: [description]\n> [rationale]\n\n[suggestion]"
+   - `body`: "[label (decorations)]: [description]\n> [rationale]\n\n[suggestion]"\n     (derive label from severity+category using the mapping in Step 6)
    - The `[suggestion]` field from the finding already contains the text line + ` ```suggestion ` code block — paste it verbatim
 3. Ask user: "Submit review with verdict `[verdict]`, or leave as pending draft for you to submit manually? (submit/leave)"
    - `submit` → `mcp__github__pull_request_review_write` (method: `submit_pending`) with event = `APPROVE` / `REQUEST_CHANGES` / `COMMENT` per verdict; report submitted review URL
