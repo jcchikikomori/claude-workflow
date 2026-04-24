@@ -1,0 +1,16 @@
+{
+  "description": "Ensures '🤖 Written by Claude, reviewed by <user>' attribution on all external posts",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/attribution_hook.py"
+          }
+        ]
+      }
+    ]
+  }
+}

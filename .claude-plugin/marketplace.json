@@ -65,6 +65,12 @@
       "description": "A Claude Code skill/plugin and Codex plugin that makes agent talk like caveman — cutting ~75% of output tokens while keeping full technical accuracy.",
       "category": "behavior-control",
       "homepage": "https://github.com/JuliusBrussee/caveman"
+    },
+    {
+      "name": "claude-attribution",
+      "source": "./plugin-attribution",
+      "description": "Appends '🤖 Written by Claude, reviewed by <user>' attribution to all external posts via any MCP-connected platform",
+      "category": "governance"
     }
   ]
 }
