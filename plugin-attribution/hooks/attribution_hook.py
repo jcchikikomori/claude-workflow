@@ -31,8 +31,11 @@ BODY_FIELDS = [
 
 # Bash patterns that post to external platforms
 POSTING_BASH_PATTERNS = [
-    r"\bgh\s+(pr\s+create|issue\s+(create|comment)|pr\s+comment|pr\s+review)",
+    r"\bgh\s+pr\s+(create|comment|review|edit)\b",
+    r"\bgh\s+issue\s+(create|comment|edit)\b",
+    r"\bgh\s+api\b.*(-f\s+body=|--field\s+body=|-F\s+body=|--raw-field\s+body=)",
     r"\bcurl\s+.*-X\s*(POST|PUT|PATCH)",
+    r"\bcurl\s+.*--data",
     r"\bjira\s+issue\s+(create|comment)",
 ]
 
@@ -44,7 +47,7 @@ Ask the user for their name and save it:
 
   echo "Their Name" > ~/.claude/claude-attribution-name.txt
 
-Then retry the operation."""
+Then show the complete post content to the user for approval before retrying."""
 
 MISSING_MESSAGE = """\
 [claude-attribution] BLOCKED: Attribution line missing from post body.
@@ -53,7 +56,11 @@ All external posts must include this attribution line:
 
   🤖 Written by Claude, reviewed by {name}
 
-Add this line to the end of the post body and retry."""
+IMPORTANT: Before retrying, you MUST:
+1. Add the attribution line to the post body
+2. Show the COMPLETE post content to the user
+3. Ask the user to approve before posting
+4. Only retry after user confirms"""
 
 
 def get_reviewer_name() -> "str | None":

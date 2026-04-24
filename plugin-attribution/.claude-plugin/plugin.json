@@ -1,6 +1,6 @@
 {
   "name": "claude-attribution",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Appends '🤖 Written by Claude, reviewed by <user>' attribution to all external posts — GitHub, JIRA, Slack, and any MCP-connected platform",
   "author": {
     "name": "John Cyrill Corsanes",
