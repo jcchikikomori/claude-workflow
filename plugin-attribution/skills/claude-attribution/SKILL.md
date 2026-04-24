@@ -41,6 +41,7 @@ Also CLI commands: `gh pr create`, `gh issue comment`, etc.
    🤖 Written by Claude, reviewed by <name>
    ```
 3. Do NOT add it to titles, labels, or metadata fields — only the body/content
+4. For Bash CLI commands (`gh`, `curl`, etc.), always include the attribution **inline** in the body string — never use shell variable expansion like `${ATTR}` to inject it, because the hook inspects raw command text before shell expansion
 
 ## User Review Before Posting (Mandatory)
 

@@ -60,6 +60,27 @@ For PR review workflows that post inline comments, also add:
 }
 ```
 
+For `claude-attribution` plugin (posting to external platforms via CLI):
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh pr create:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(gh pr review:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(gh api:*)"
+    ]
+  }
+}
+```
+
+> **Note:** The attribution hook runs as a PreToolUse gate — it blocks the command before execution if the attribution line is missing. These permissions allow the CLI commands to proceed _after_ the hook approves them.
+
 Merge these into your existing `permissions.allow` array — do not replace it.
 
 ---
@@ -100,6 +121,7 @@ For fullstack projects:
 | `dev` | workflow-orchestration | Agent-driven recipes for web, mobile, and integration development |
 | `qa` | product-quality | Agent-driven recipes for acceptance tests, E2E, and browser-layer QA |
 | `env-guard` | behavior-control | Hook enforcement to prevent leaking `.env` and secrets |
+| `claude-attribution` | governance | Ensures all external posts carry "🤖 Written by Claude, reviewed by \<user\>" attribution |
 | `metronome` | behavior-control | Detects shortcut-taking and nudges Claude to proceed step by step |
 | `discover` | product-quality | Turns feature ideas into evidence-backed PRDs through structured discovery |
 | `caveman` | behavior-control | A plugin that makes agent talk like caveman |
@@ -107,6 +129,9 @@ For fullstack projects:
 The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, build, and verify software using AI agents. Install the `skills` plugin from [skills-md](https://github.com/jcchikikomori/skills-md) for language/framework-specific rules (Ruby, Python, React, Node.js, Docker, etc.).
 
 ```bash
+# Governance
+/plugin install claude-attribution@claude-workflow
+
 # External add-ons
 /plugin install metronome@claude-workflow
 /plugin install discover@claude-workflow
@@ -276,6 +301,15 @@ claude-workflow/
 │   └── .claude-plugin/
 │       └── plugin.json
 │
+├── plugin-attribution/           # claude-attribution plugin — AI authorship attribution
+│   ├── hooks/
+│   │   ├── hooks.json            # PreToolUse hook on mcp__.*|Bash
+│   │   └── attribution_hook.py   # Dynamic body-field detection + attribution check
+│   ├── skills/
+│   │   └── claude-attribution/SKILL.md
+│   └── .claude-plugin/
+│       └── plugin.json
+│
 ├── LICENSE
 └── README.md
 ```
@@ -293,6 +327,41 @@ It also ships a `secret-exposure-auditor` agent. Ask Claude to "audit for secret
 ```bash
 /plugin install env-guard@claude-workflow
 ```
+
+---
+
+## claude-attribution
+
+`claude-attribution` ensures every external post carries a visible AI-authorship line: **🤖 Written by Claude, reviewed by \<name\>**. It works with any MCP-connected platform — GitHub, JIRA, Confluence, Slack, or anything added later.
+
+### How it works
+
+- A **PreToolUse hook** matches `mcp__.*|Bash` — all MCP tools and CLI commands
+- The hook scans `tool_input` for body-like fields (`body`, `content`, `message`, `comment`, `commentBody`, `description`, `text`)
+- Posts missing the attribution line are **blocked before they are sent**
+- A companion skill instructs Claude to **show the post to the user for approval** before sending
+
+### Setup
+
+```bash
+/plugin install claude-attribution@claude-workflow
+
+# Set your name (prompted on first use, or set manually)
+echo "Your Name" > ~/.claude/claude-attribution-name.txt
+```
+
+### CLI coverage
+
+The hook intercepts these Bash patterns:
+
+| Pattern | Example |
+|---------|---------|
+| `gh pr create/comment/review/edit` | `gh pr comment 42 --body "..."` |
+| `gh issue create/comment/edit` | `gh issue comment 1 --body "..."` |
+| `gh api` with body field | `gh api repos/o/r/issues/1/comments -f body=...` |
+| `curl` POST/PUT/PATCH | `curl -X POST -d '...'` |
+
+> **Important:** Always include the attribution text **inline** in the body string. Do not use shell variable expansion (e.g., `${ATTR}`) to inject the attribution — the hook inspects raw command text before shell expansion.
 
 ---
 
@@ -317,6 +386,10 @@ The `quality-fixer` and `quality-fixer-frontend` agents automatically fix most i
 **Q: What does env-guard do and do I need it?**
 
 It adds a security enforcement layer that blocks Claude from reading or leaking sensitive files. The block happens at the tool level before execution — it cannot be bypassed by prompt instructions. Install it alongside any other plugin.
+
+**Q: What does claude-attribution do?**
+
+It ensures every external post (GitHub PRs, JIRA comments, Slack messages, etc.) carries a "🤖 Written by Claude, reviewed by \<name\>" attribution line. A PreToolUse hook blocks posts missing the line, and a companion skill ensures Claude shows the post to you for approval before sending.
 
 ---
 

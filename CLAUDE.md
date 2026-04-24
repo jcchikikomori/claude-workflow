@@ -47,9 +47,13 @@ All three must be kept in sync. Update them together whenever the version change
 
 - `plugin-attribution/.claude-plugin/plugin.json` — uses plain SemVer (`0.1.0`, `0.2.0`, ...), **not** the fork-qualified `jcc.N` scheme, because it is an original plugin with no upstream counterpart.
 
-### When to bump the fork patch (`jcc.N`)
+### When to bump versions
 
-Increment `jcc.N` when you make changes to plugin logic, skills, or agents — not for branding-only edits. The fork patch resets to `jcc.1` whenever upstream base version changes.
+**Fork-qualified plugins** (`dev`, `qa`, `env-guard`): Increment `jcc.N` when you make changes to plugin logic, skills, or agents — not for branding-only edits. The fork patch resets to `jcc.1` whenever upstream base version changes.
+
+**Independently versioned plugins** (`claude-attribution`): Bump the SemVer version in `plugin.json` after every change to plugin logic, hooks, or skills. Use minor version for new features/behavior changes, patch for bug fixes.
+
+**After every plugin change**, also update the plugin's `README.md` with a changelog entry describing what changed.
 
 ## Using This as a Custom Marketplace
 
