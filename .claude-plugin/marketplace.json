@@ -77,6 +77,12 @@
       "source": "./plugin-markdown-format",
       "description": "Auto-formats .md files after Claude writes or edits them using markdownlint-cli2 --fix — silently corrects LLM-generated markdown errors",
       "category": "quality-enforcement"
+    },
+    {
+      "name": "commit-guard",
+      "source": "./plugin-commit-guard",
+      "description": "Asks user for approval before every git commit; preserves GPG signing and pinentry passphrase flow",
+      "category": "behavior-control"
     }
   ]
 }
