@@ -17,6 +17,13 @@ from pathlib import Path
 
 NAME_FILE = Path.home() / ".claude" / "claude-attribution-name.txt"
 
+# MCP tool name patterns that provide native AI attribution,
+# so the text attribution line is not required.
+# Slack adds "Sent using @Claude" natively when posting via its AI integration.
+NATIVE_ATTRIBUTION_TOOL_PATTERNS = [
+    r"^mcp__slack__",
+]
+
 # Fields that typically contain postable text body.
 # Checked in order — first non-empty match wins.
 BODY_FIELDS = [
@@ -79,10 +86,16 @@ def find_body_field(tool_input: dict) -> "tuple[str, str] | None":
     return None
 
 
+def has_native_attribution(tool_name: str) -> bool:
+    """Return True if the tool provides native AI attribution (e.g. Slack's 'Sent using @Claude')."""
+    return any(
+        re.search(pattern, tool_name) for pattern in NATIVE_ATTRIBUTION_TOOL_PATTERNS
+    )
+
+
 def has_attribution(text: str, name: str) -> bool:
     pattern = re.compile(
-        r"(\U0001f916\s*)?written\s+by\s+claude.*reviewed\s+by\s+"
-        + re.escape(name),
+        r"(\U0001f916\s*)?written\s+by\s+claude.*reviewed\s+by\s+" + re.escape(name),
         re.IGNORECASE,
     )
     return bool(pattern.search(text))
@@ -117,6 +130,11 @@ def main() -> None:
 
     # --- MCP tools: dynamic body field detection ---
     if not tool_name.startswith("mcp__"):
+        sys.exit(0)
+
+    # Some MCP servers (e.g. Slack) provide native AI attribution.
+    # Skip the text attribution check for those tools.
+    if has_native_attribution(tool_name):
         sys.exit(0)
 
     result = find_body_field(tool_input)

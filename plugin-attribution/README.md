@@ -18,10 +18,19 @@ Works with **any** MCP-connected platform, including:
 - GitHub (PRs, issues, review comments)
 - JIRA (issue comments, descriptions)
 - Confluence (pages, comments)
-- Slack (messages)
 - Any future MCP server with body-like fields
 
 Also covers CLI tools: `gh pr create`, `gh pr comment`, `gh issue comment`, `gh api`, `curl POST/PUT/PATCH`, etc.
+
+### Native Attribution Exceptions
+
+Some platforms provide their own built-in AI attribution, making the manual text line unnecessary. These are **exempt** from the text check:
+
+| Platform | Native label | Hook behaviour |
+|----------|-------------|----------------|
+| Slack (`mcp__slack__*`) | "Sent using @Claude" added by Slack automatically | ✅ Skipped — native label is sufficient |
+
+To add more exempt platforms, extend `NATIVE_ATTRIBUTION_TOOL_PATTERNS` in `hooks/attribution_hook.py`.
 
 ## Setup
 
@@ -50,6 +59,10 @@ Before posting to any external platform, Claude will:
 4. Only post after user confirms
 
 ## Version History
+
+### 0.3.0
+
+- Added `NATIVE_ATTRIBUTION_TOOL_PATTERNS` — Slack (`mcp__slack__*`) tools are now exempt from the text attribution check since Slack adds "Sent using @Claude" natively.
 
 ### 0.2.0
 
