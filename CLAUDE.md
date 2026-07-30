@@ -48,6 +48,7 @@ All three must be kept in sync. Update them together whenever the version change
 - `plugin-attribution/.claude-plugin/plugin.json` — uses plain SemVer (`0.1.0`, `0.2.0`, ...), **not** the fork-qualified `jcc.N` scheme, because it is an original plugin with no upstream counterpart.
 - `plugin-markdown-format/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
 - `plugin-commit-guard/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
+- `plugin-gh-issue-to-pr/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
 
 ### When to bump versions
 
@@ -76,6 +77,7 @@ This registers the marketplace from the GitHub repo. Claude Code reads `.claude-
 /plugin install env-guard@claude-workflow
 /plugin install claude-attribution@claude-workflow
 /plugin install commit-guard@claude-workflow
+/plugin install gh-issue-to-pr@claude-workflow
 
 # External add-ons (pulled from their own repos)
 /plugin install metronome@claude-workflow
@@ -100,6 +102,7 @@ Always reload after installing, updating, or switching plugins within the same s
 | `claude-attribution` | governance | Hook + skill ensuring all MCP-posted content carries a "Written by Claude, reviewed by \<user\>" attribution line |
 | `markdown-format` | quality-enforcement | PostToolUse hook + skill — runs `markdownlint-cli2 --fix` on every `.md` write; non-blocking |
 | `commit-guard` | behavior-control | PreToolUse hook that intercepts every `git commit`, shows staged files + message for user approval; GPG signing preserved |
+| `gh-issue-to-pr` | workflow-orchestration | Agent that drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, commit (with confirmation), PR, review, merge, close |
 | `skills` ([skills-md](https://github.com/jcchikikomori/skills-md)) | language/framework rules | Technology-specific coding standards — Ruby, Python, React, Node.js, Docker, etc. |
 
 The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, build, and verify software using AI agents. The `skills` plugin (from the separate `skills-md` repo) covers **language and framework rules** — what good code looks like in a given technology. They complement each other and can be installed together.
@@ -259,6 +262,7 @@ plugin-env-guard/                 # env-guard plugin — secrets leak prevention
 plugin-attribution/               # claude-attribution plugin — AI authorship attribution on MCP posts
 plugin-markdown-format/           # markdown-format plugin — auto-fix markdown lint issues on write
 plugin-commit-guard/              # commit-guard plugin — user approval gate before every git commit
+plugin-gh-issue-to-pr/            # gh-issue-to-pr plugin — GitHub issue-to-merged-PR agent
 ```
 
 Each plugin owns its agents and skills directly — no shared root directories, no symlinks. To update an agent or skill, edit it in the plugin directory where it belongs (`plugin-dev/agents/`, `plugin-qa/skills/`, etc.).

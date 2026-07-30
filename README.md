@@ -124,6 +124,7 @@ For fullstack projects:
 | `claude-attribution` | governance | Ensures all external posts carry "🤖 Written by Claude, reviewed by \<user\>" attribution |
 | `markdown-format` | quality-enforcement | PostToolUse hook that runs `markdownlint-cli2 --fix` on every `.md` write — non-blocking |
 | `commit-guard` | behavior-control | PreToolUse hook that intercepts every `git commit`, shows staged files + message for user approval before the commit runs |
+| `gh-issue-to-pr` | workflow-orchestration | Agent that drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, commit (with confirmation), PR, review, merge, close |
 | `metronome` | behavior-control | Detects shortcut-taking and nudges Claude to proceed step by step |
 | `discover` | product-quality | Turns feature ideas into evidence-backed PRDs through structured discovery |
 | `caveman` | behavior-control | A plugin that makes agent talk like caveman |
@@ -139,6 +140,9 @@ The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, bui
 
 # Commit approval gate
 /plugin install commit-guard@claude-workflow
+
+# GitHub issue-to-PR workflow agent
+/plugin install gh-issue-to-pr@claude-workflow
 
 # External add-ons
 /plugin install metronome@claude-workflow
@@ -208,7 +212,7 @@ All workflow entry points use the `recipe-` prefix. Type `/recipe-` and use tab 
 ### Development (plugin: dev)
 
 | Recipe | Purpose |
-|--------|---------|
+| -------- | --------- |
 | `/recipe-implement` | End-to-end feature development |
 | `/recipe-fullstack-implement` | End-to-end fullstack (backend + frontend) |
 | `/recipe-task` | Single task with precision — bug fixes, small changes |
@@ -241,7 +245,7 @@ All workflow entry points use the `recipe-` prefix. Type `/recipe-` and use tab 
 ### plugin-dev Agents (27)
 
 | Agent | What It Does |
-|-------|--------------|
+| ------- | -------------- |
 | **requirement-analyzer** | Determines task scale and selects the right workflow |
 | **codebase-analyzer** | Analyzes existing codebase to inform design |
 | **prd-creator** | Writes product requirement docs for complex features |
@@ -272,7 +276,7 @@ All workflow entry points use the `recipe-` prefix. Type `/recipe-` and use tab 
 ### plugin-qa Agents (3)
 
 | Agent | What It Does |
-|-------|--------------|
+| ------- | -------------- |
 | **acceptance-test-generator** | Creates E2E and integration test scaffolds from requirements |
 | **integration-test-reviewer** | Reviews integration/E2E tests for skeleton compliance and quality |
 | **web-qa-reviewer** | Browser-layer QA via Chrome DevTools — Lighthouse, console errors, network failures |
@@ -329,6 +333,12 @@ claude-workflow/
 │   └── .claude-plugin/
 │       └── plugin.json
 │
+├── plugin-gh-issue-to-pr/        # gh-issue-to-pr plugin — GitHub issue-to-merged-PR agent
+│   ├── agents/
+│   │   └── gh-issue-to-pr.md
+│   └── .claude-plugin/
+│       └── plugin.json
+│
 ├── LICENSE
 └── README.md
 ```
@@ -374,7 +384,7 @@ echo "Your Name" > ~/.claude/claude-attribution-name.txt
 The hook intercepts these Bash patterns:
 
 | Pattern | Example |
-|---------|---------|
+| --------- | --------- |
 | `gh pr create/comment/review/edit` | `gh pr comment 42 --body "..."` |
 | `gh issue create/comment/edit` | `gh issue comment 1 --body "..."` |
 | `gh api` with body field | `gh api repos/o/r/issues/1/comments -f body=...` |
@@ -418,6 +428,39 @@ npm install -g markdownlint-cli2
 
 To override rules for a specific project, place a `.markdownlint.json` in the project root —
 `markdownlint-cli2` picks it up automatically and the bundled config is not applied.
+
+---
+
+## gh-issue-to-pr
+
+`gh-issue-to-pr` ships a single agent that drives one GitHub issue from "reported" to "merged
+and closed," in small, reversible steps, stopping hard at anything shared-state or
+hard-to-reverse.
+
+### Phases
+
+Investigate to Plan to Branch (git-flow aware) to Scout for reusable code to Implement to Test
+locally to Stage to draft a commit message and **stop** to (once pushed) open the PR to
+self-review the diff to update the Test Plan checklist to merge (with confirmation) to close
+the issue (with confirmation).
+
+It always reads the target repo's own `CLAUDE.md`/`AGENTS.md`/`CONTRIBUTING.md` first and
+defers to those conventions over its own defaults — it's portable across repos.
+
+### Hard rules
+
+- Never runs `git commit`, `git push`, `gh pr merge`, or `gh issue close` without the user
+  explicitly approving that specific action in that turn
+- Never force-pushes, never `--no-verify`, never skips hooks
+
+### Setup
+
+```bash
+/plugin install gh-issue-to-pr@claude-workflow
+```
+
+Trigger with "pick up issue #42", "work ticket #17 end to end", or resume mid-flow with
+"I've pushed, open the PR" / "checks are green, merge it".
 
 ---
 

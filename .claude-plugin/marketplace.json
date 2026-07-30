@@ -83,6 +83,12 @@
       "source": "./plugin-commit-guard",
       "description": "Asks user for approval before every git commit; preserves GPG signing and pinentry passphrase flow",
       "category": "behavior-control"
+    },
+    {
+      "name": "gh-issue-to-pr",
+      "source": "./plugin-gh-issue-to-pr",
+      "description": "Drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, and (with explicit confirmation at each hard-to-reverse step) commit, open PR, review, merge, and close",
+      "category": "workflow-orchestration"
     }
   ]
 }
