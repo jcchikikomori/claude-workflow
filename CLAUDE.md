@@ -49,6 +49,7 @@ All three must be kept in sync. Update them together whenever the version change
 - `plugin-markdown-format/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
 - `plugin-commit-guard/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
 - `plugin-gh-issue-to-pr/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
+- `plugin-memory-guard/.claude-plugin/plugin.json` — same plain SemVer scheme, original plugin with no upstream counterpart.
 
 ### When to bump versions
 
@@ -78,6 +79,7 @@ This registers the marketplace from the GitHub repo. Claude Code reads `.claude-
 /plugin install claude-attribution@claude-workflow
 /plugin install commit-guard@claude-workflow
 /plugin install gh-issue-to-pr@claude-workflow
+/plugin install memory-guard@claude-workflow
 
 # External add-ons (pulled from their own repos)
 /plugin install metronome@claude-workflow
@@ -103,6 +105,7 @@ Always reload after installing, updating, or switching plugins within the same s
 | `markdown-format` | quality-enforcement | PostToolUse hook + skill — runs `markdownlint-cli2 --fix` on every `.md` write; non-blocking |
 | `commit-guard` | behavior-control | PreToolUse hook that intercepts every `git commit`, shows staged files + message for user approval; GPG signing preserved |
 | `gh-issue-to-pr` | workflow-orchestration | Agent that drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, commit (with confirmation), PR, review, merge, close |
+| `memory-guard` | behavior-control | SessionStart + PostToolUse hooks that watch `.claude/**`, root `CLAUDE.md`, and `docs/ticket-tracking/**` for changes, save them to memory, and ask the user to keep or stash them |
 | `skills` ([skills-md](https://github.com/jcchikikomori/skills-md)) | language/framework rules | Technology-specific coding standards — Ruby, Python, React, Node.js, Docker, etc. |
 
 The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, build, and verify software using AI agents. The `skills` plugin (from the separate `skills-md` repo) covers **language and framework rules** — what good code looks like in a given technology. They complement each other and can be installed together.
@@ -136,6 +139,22 @@ The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, bui
 - A companion skill instructs Claude to include the attribution proactively and to show the post to the user for review before sending.
 
 **User configuration:** The user's name is stored in `~/.claude/claude-attribution-name.txt`. On first use the plugin prompts for the name so the attribution reads correctly (e.g., "Written by Claude, reviewed by Jane").
+
+---
+
+### memory-guard plugin
+
+**Purpose:** Watches `.claude/**`, the project's root `CLAUDE.md`, and `docs/ticket-tracking/**` for changes; saves the substance of each change to memory, then asks the user whether to keep or stash it.
+
+**How it works:**
+
+- A `SessionStart` hook checks `git status` for watched paths already dirty when a session begins.
+- A `PostToolUse` hook (matcher `Write|Edit|MultiEdit`) catches watched-path changes live, as Claude makes them.
+- Both feed an instruction to Claude via `hookSpecificOutput.additionalContext` (SessionStart) or plain stdout (PostToolUse) — never a stderr+exit(2) block, since PostToolUse can't prevent a write that already happened.
+- A companion skill has Claude judge memory-worthiness, save via `mempalace` (if installed) or the file-based auto-memory system otherwise, then ask once via `AskUserQuestion` whether to keep the files or `git stash push -u --` scoped only to the flagged paths.
+- A per-session state file under `~/.claude/.memory-guard/` debounces repeat prompts for the same path within a session.
+
+**Configuration:** Watched paths are editable in `plugin-memory-guard/config/watched-paths.json`.
 
 ---
 
@@ -263,6 +282,7 @@ plugin-attribution/               # claude-attribution plugin — AI authorship 
 plugin-markdown-format/           # markdown-format plugin — auto-fix markdown lint issues on write
 plugin-commit-guard/              # commit-guard plugin — user approval gate before every git commit
 plugin-gh-issue-to-pr/            # gh-issue-to-pr plugin — GitHub issue-to-merged-PR agent
+plugin-memory-guard/              # memory-guard plugin — watch .claude/**, save to memory, offer stash
 ```
 
 Each plugin owns its agents and skills directly — no shared root directories, no symlinks. To update an agent or skill, edit it in the plugin directory where it belongs (`plugin-dev/agents/`, `plugin-qa/skills/`, etc.).

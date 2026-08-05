@@ -89,6 +89,12 @@
       "source": "./plugin-gh-issue-to-pr",
       "description": "Drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, and (with explicit confirmation at each hard-to-reverse step) commit, open PR, review, merge, and close",
       "category": "workflow-orchestration"
+    },
+    {
+      "name": "memory-guard",
+      "source": "./plugin-memory-guard",
+      "description": "Watches .claude/**, root CLAUDE.md, and docs/ticket-tracking/** for changes; saves the substance to memory and asks whether to keep or stash them",
+      "category": "behavior-control"
     }
   ]
 }

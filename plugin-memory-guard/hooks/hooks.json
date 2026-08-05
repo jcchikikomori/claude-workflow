@@ -1,0 +1,26 @@
+{
+  "description": "Watches .claude/**, root CLAUDE.md, and docs/ticket-tracking/** for changes; saves context to memory and offers to stash them",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/session_start_hook.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/post_tool_use_hook.py"
+          }
+        ]
+      }
+    ]
+  }
+}

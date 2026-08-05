@@ -1,0 +1,16 @@
+{
+  "name": "memory-guard",
+  "version": "0.1.0",
+  "description": "Watches .claude/**, root CLAUDE.md, and docs/ticket-tracking/** for changes; has Claude save the substance to memory, then asks whether to keep or stash them",
+  "author": {
+    "name": "John Cyrill Corsanes",
+    "url": "https://github.com/jcchikikomori"
+  },
+  "homepage": "https://github.com/jcchikikomori/claude-workflow",
+  "repository": "https://github.com/jcchikikomori/claude-workflow.git",
+  "license": "MIT",
+  "keywords": ["claude-md", "memory", "mempalace", "git", "stash", "hooks", "behavior-control"],
+  "skills": [
+    "./skills/memory-guard"
+  ]
+}
