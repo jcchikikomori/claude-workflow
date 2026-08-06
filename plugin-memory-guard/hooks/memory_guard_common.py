@@ -120,6 +120,59 @@ def watched_pathspecs() -> "list[str]":
     return [*dirs, *files]
 
 
+def parse_porcelain_paths(output: str) -> "list[str]":
+    """Extracts paths from `git status --porcelain` output, taking the new
+    path for renames (`R  old -> new`) and stripping quoting git applies to
+    paths containing special characters."""
+    paths = []
+    for line in output.splitlines():
+        if len(line) < 4:
+            continue
+        entry = line[3:]
+        if " -> " in entry:
+            entry = entry.split(" -> ", 1)[1]
+        entry = entry.strip()
+        if entry.startswith('"') and entry.endswith('"'):
+            entry = entry[1:-1]
+        paths.append(entry)
+    return paths
+
+
+def live_dirty_watched_paths(repo_root: str) -> "list[str]":
+    """Recomputes, right now, which watched paths are actually dirty in
+    repo_root. Never trust a recorded/cached list for anything destructive
+    (removal) or working-tree-mutating (stash) -- always call this
+    immediately before acting.
+
+    --untracked-files=all is required here: by default `git status
+    --porcelain` collapses an entirely-untracked directory into one `??
+    <dir>/` line instead of listing the files inside it, which would make
+    an untracked-but-watched subdirectory (e.g. a brand-new
+    .claude/agent-memory/<agent>/ folder) unresolvable -- there'd be no
+    individual file path to remove or stash, only a directory, and
+    unlinking/stashing a directory as if it were a file silently fails.
+    This scan is always scoped to the small watched pathspecs, not the
+    whole repo, so the usual "don't scan untracked files repo-wide" cost
+    concern doesn't apply."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", repo_root, "status", "--porcelain", "--untracked-files=all",
+             "--", *watched_pathspecs()],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    if result.returncode != 0:
+        return []
+    watched_dirs, watched_files = load_watched_patterns()
+    return [
+        p for p in parse_porcelain_paths(result.stdout)
+        if is_watched(p, watched_dirs, watched_files)
+    ]
+
+
 # --- Session state -----------------------------------------------------
 
 def _sanitize_session_id(session_id: str) -> str:

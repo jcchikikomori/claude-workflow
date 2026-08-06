@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
-Claude runs this after applying the remove/stash action to a flagged path,
-to mark it "resolved" in its session state file so the PostToolUse/
-SessionStart hooks stop flagging it for the rest of the session.
+Lower-level helper: marks a single path "resolved" in a session's state
+file. `apply_action.py` calls this internally for every path it processes
+-- the normal memory-guard flow never needs to call this script directly.
+Kept as a standalone entry point for manual/debug use only (e.g. clearing
+a stuck "pending" entry from an old session without re-running the action).
 
 Usage:
   python3 mark_resolved.py --session-id <id> --path <relpath> --action remove|stash

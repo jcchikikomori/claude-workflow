@@ -1,6 +1,6 @@
 ---
 name: memory-guard
-description: Guides Claude through the memory-guard flow when a watched .claude/**, root CLAUDE.md, or docs/ticket-tracking/** path is flagged by the memory-guard hooks — save the change to memory, then apply the project's remove/stash preference (asking once, ever, per project, if none is set yet).
+description: Guides Claude through the memory-guard flow when a watched .claude/**, root CLAUDE.md, or docs/ticket-tracking/** path is flagged by the memory-guard hooks — save the change to memory, then apply the project's remove/stash preference (asking once, ever, per project, if none is set yet) via the single apply_action.py script.
 ---
 
 # memory-guard
@@ -18,6 +18,15 @@ does not apply here. This is a one-time, per-project question the user
 explicitly asked for; silently picking an action and continuing is not an
 acceptable substitute, no matter what session mode is active.
 
+**Always resolve via `apply_action.py`, never by hand-writing `git stash` /
+`rm` yourself.** A real session was observed where paths got recorded as
+`action: "stash"` in the state file while `git status` still showed them
+modified afterward — the resolution was marked done without the underlying
+git command ever actually running. `apply_action.py` closes that gap: it
+recomputes the live dirty watched list itself, performs the deletion/stash,
+and marks every path resolved, all in one atomic step. There is no
+supported path where Claude constructs the git/rm command manually.
+
 ## Case A — no project preference set yet (first time ever for this repo)
 
 1. **Collect every path flagged so far this turn.** Handle them together in
@@ -33,7 +42,9 @@ acceptable substitute, no matter what session mode is active.
      ("must", "never", "always", "policy"), a credential/URL/environment
      detail, or a ticket-tracking status/scope note.
 
-3. **Save each memory-worthy change** (see "Saving to memory" below).
+3. **Save each memory-worthy change** (see "Saving to memory" below) —
+   before applying any action. The file is the only copy of that content
+   until the memory save actually lands.
 
 4. **Ask the user ONCE** — this is a per-project question, not per-file or
    per-turn — via `AskUserQuestion`: should watched `.claude`-scoped changes
@@ -43,21 +54,15 @@ acceptable substitute, no matter what session mode is active.
    this choice will be remembered and applied automatically for this project
    from now on.
 
-5. **Persist the answer**, then **apply it** to every path flagged this
-   turn:
+5. **Persist the answer, then apply it — two commands, in order**:
 
    ```bash
    python3 <set_preference.py path from the instruction> --repo-root "<repo_root>" --action <remove|stash>
+   python3 <apply_action.py path from the instruction> --repo-root "<repo_root>" --action <remove|stash> --session-id <id>
    ```
 
-   Then, per path: if **Remove**, delete the file; if **Stash**, do the
-   live-recompute-and-stash below.
-
-6. **Mark each path resolved**:
-
-   ```bash
-   python3 <mark_resolved.py path from the instruction> --session-id <id> --path "<relpath>" --action <remove|stash>
-   ```
+   `apply_action.py` recomputes every currently-dirty watched path itself
+   and resolves all of them — you don't need to pass individual paths.
 
 ## Case B — project preference already set (every time after the first)
 
@@ -67,10 +72,11 @@ The hook's instruction already tells you the standing action
 1. Collect every path flagged this turn.
 2. For each, judge memory-worthiness and save (see below) — this step still
    happens every time, only the remove/stash *question* is one-time.
-3. Apply the standing action directly to each path (delete, or stash — see
-   below).
-4. Mark each path resolved via `mark_resolved.py`, same as Case A step 6,
-   with `--action` matching the standing preference.
+3. Apply the standing action — one command:
+
+   ```bash
+   python3 <apply_action.py path from the instruction> --repo-root "<repo_root>" --action <remove|stash> --session-id <id>
+   ```
 
 ## Saving to memory
 
@@ -86,33 +92,20 @@ The hook's instruction already tells you the standing action
   a project fact), then add one line to that project's `MEMORY.md` index in
   the same style as its existing entries.
 
-## The stash (when the action is "stash")
+## What `apply_action.py` actually does
 
-Never stash from the recorded state — always recompute live, immediately
-before stashing, so nothing stale or already-reverted gets swept in:
-
-```bash
-git status --porcelain -- .claude CLAUDE.md docs/ticket-tracking
-```
-
-Then stash only the paths that come back dirty, as separate arguments
-(never a shell string), always with `-u` so newly created untracked files
-under `.claude/` are included:
-
-```bash
-git stash push -u -- <path1> <path2> ...
-```
-
-If the recomputed list is empty (already resolved another way), do
-nothing — never run a bare `git stash push` with no pathspec, since that
-would stash the entire working tree.
-
-## The removal (when the action is "remove")
-
-Only delete the exact flagged path(s) — never a wider glob, never anything
-outside the watched-path list. Confirm the memory save from step 2/above
-actually happened before deleting; the file is the only copy of that
-content until the memory save lands.
+- Recomputes the live dirty watched list via `git status --porcelain`,
+  filtered through the same matcher the hooks use — never trusts any
+  earlier-recorded list, so nothing stale or already-handled gets swept in.
+- `remove`: deletes each of those files from disk.
+- `stash`: runs a single `git stash push -u -- <path1> <path2> ...` scoped
+  to exactly those paths — never a bare `git stash push` with no pathspec,
+  since that would stash the entire working tree.
+- Marks every path it touches `"resolved"` in the session state file, so
+  the hooks stop re-flagging them.
+- If nothing is currently dirty under the watched paths (already resolved
+  another way since the flag), it no-ops and says so — it never touches
+  anything outside the watched-path list.
 
 ## Rules
 

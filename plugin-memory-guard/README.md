@@ -71,9 +71,10 @@ python3 <plugin path>/scripts/reset_preference.py --repo-root /path/to/repo
 | Hook | `hooks/post_tool_use_hook.py` | Detects live watched-path writes/edits |
 | Shared module | `hooks/memory_guard_common.py` | Repo-root resolution, path matching, session-state + project-preference I/O |
 | Hook config | `hooks/hooks.json` | Registers `SessionStart` (no matcher) + `PostToolUse` (`Write\|Edit\|MultiEdit`) |
-| Helper | `scripts/mark_resolved.py` | Claude runs this after applying remove/stash to a path |
+| Helper | `scripts/apply_action.py` | The one command that actually performs remove/stash + marks paths resolved |
 | Helper | `scripts/set_preference.py` | Claude runs this once, right after the user's first-ever answer |
 | Helper | `scripts/reset_preference.py` | Manually clears a project's stored preference |
+| Helper | `scripts/mark_resolved.py` | Lower-level; `apply_action.py` calls this internally, not normally invoked directly |
 | Config | `config/watched-paths.json` | Editable watch-path list |
 | Skill | `skills/memory-guard/SKILL.md` | The save-then-resolve procedure Claude follows |
 | State | `~/.claude/.memory-guard/session_<id>.json` | Per-session flagged/resolved path tracking |
@@ -95,6 +96,25 @@ python3 <plugin path>/scripts/reset_preference.py --repo-root /path/to/repo
   delete anyway, the content is gone.
 
 ## Changelog
+
+### 0.2.1
+
+Fixed a real bug found via testing: `git status --porcelain`'s default
+untracked-file mode collapses an entirely-untracked directory into one `??
+<dir>/` line instead of listing files inside it — so a brand-new
+subdirectory under a watched path (e.g. a first-ever
+`.claude/agent-memory/<agent>/`) would resolve to a directory path that
+can't be `rm`'d or stashed as a file, silently skipped, and left the
+individually-flagged file stuck `pending` forever. This is what actually
+happened in a real session: paths got recorded `action: "stash"` while
+`git status` kept showing them modified afterward. Fixed by scanning with
+`--untracked-files=all` (safe here since the scan is always scoped to the
+small watched pathspecs, never the whole repo).
+
+Also replaced the two-step "hand-write `git stash`/`rm`, then call
+`mark_resolved.py`" flow with a single `scripts/apply_action.py` that does
+both atomically — removing the split that let a resolution get recorded as
+done without the underlying command ever running.
 
 ### 0.2.0
 
