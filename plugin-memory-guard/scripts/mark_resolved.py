@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Claude runs this after the user answers the memory-guard keep/stash question,
-to mark a watched path "resolved" in its session state file so the
-PostToolUse/SessionStart hooks stop flagging it for the rest of the session.
+Claude runs this after applying the remove/stash action to a flagged path,
+to mark it "resolved" in its session state file so the PostToolUse/
+SessionStart hooks stop flagging it for the rest of the session.
 
 Usage:
-  python3 mark_resolved.py --session-id <id> --path <relpath> --action keep|stash
+  python3 mark_resolved.py --session-id <id> --path <relpath> --action remove|stash
 """
 
 import argparse
@@ -21,7 +21,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--session-id", required=True)
     parser.add_argument("--path", required=True)
-    parser.add_argument("--action", required=True, choices=["keep", "stash"])
+    parser.add_argument("--action", required=True, choices=["remove", "stash"])
     args = parser.parse_args()
 
     mark_resolved(args.session_id, args.path, args.action)

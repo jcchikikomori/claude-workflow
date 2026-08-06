@@ -105,7 +105,7 @@ Always reload after installing, updating, or switching plugins within the same s
 | `markdown-format` | quality-enforcement | PostToolUse hook + skill — runs `markdownlint-cli2 --fix` on every `.md` write; non-blocking |
 | `commit-guard` | behavior-control | PreToolUse hook that intercepts every `git commit`, shows staged files + message for user approval; GPG signing preserved |
 | `gh-issue-to-pr` | workflow-orchestration | Agent that drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, commit (with confirmation), PR, review, merge, close |
-| `memory-guard` | behavior-control | SessionStart + PostToolUse hooks that watch `.claude/**`, root `CLAUDE.md`, and `docs/ticket-tracking/**` for changes, save them to memory, and ask the user to keep or stash them |
+| `memory-guard` | behavior-control | SessionStart + PostToolUse hooks that watch `.claude/**`, root `CLAUDE.md`, and `docs/ticket-tracking/**` for changes, save them to memory, then remove or stash them per a one-time, per-project preference |
 | `skills` ([skills-md](https://github.com/jcchikikomori/skills-md)) | language/framework rules | Technology-specific coding standards — Ruby, Python, React, Node.js, Docker, etc. |
 
 The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, build, and verify software using AI agents. The `skills` plugin (from the separate `skills-md` repo) covers **language and framework rules** — what good code looks like in a given technology. They complement each other and can be installed together.
@@ -144,15 +144,15 @@ The `dev` and `qa` plugins cover **workflow orchestration** — how to plan, bui
 
 ### memory-guard plugin
 
-**Purpose:** Watches `.claude/**`, the project's root `CLAUDE.md`, and `docs/ticket-tracking/**` for changes; saves the substance of each change to memory, then asks the user whether to keep or stash it.
+**Purpose:** Watches `.claude/**`, the project's root `CLAUDE.md`, and `docs/ticket-tracking/**` for changes; saves the substance of each change to memory, then removes or stashes it per a remove/stash preference asked **once, ever, per project**.
 
 **How it works:**
 
 - A `SessionStart` hook checks `git status` for watched paths already dirty when a session begins.
 - A `PostToolUse` hook (matcher `Write|Edit|MultiEdit`) catches watched-path changes live, as Claude makes them.
 - Both feed an instruction to Claude via `hookSpecificOutput.additionalContext` (SessionStart) or plain stdout (PostToolUse) — never a stderr+exit(2) block, since PostToolUse can't prevent a write that already happened.
-- A companion skill has Claude judge memory-worthiness, save via `mempalace` (if installed) or the file-based auto-memory system otherwise, then ask once via `AskUserQuestion` whether to keep the files or `git stash push -u --` scoped only to the flagged paths.
-- A per-session state file under `~/.claude/.memory-guard/` debounces repeat prompts for the same path within a session.
+- A companion skill has Claude judge memory-worthiness, save via `mempalace` (if installed) or the file-based auto-memory system otherwise. The first flagged change ever for a project asks once via `AskUserQuestion` — Remove (delete from disk) or Stash (`git stash push -u --`, scoped only to the flagged paths) — and persists the answer outside the repo; every later flagged change in that project applies it automatically, no further asking.
+- A per-session state file under `~/.claude/.memory-guard/` debounces repeat prompts for the same path within a session; a separate per-project preference file under `~/.claude/.memory-guard/project-prefs/` is what makes the remove/stash choice one-time rather than per-session.
 
 **Configuration:** Watched paths are editable in `plugin-memory-guard/config/watched-paths.json`.
 

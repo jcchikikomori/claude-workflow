@@ -6,13 +6,21 @@ Path matching: which files under a repo count as "watched" (.claude/**,
 root CLAUDE.md, docs/ticket-tracking/**), loaded from a small editable
 config file so the user can adjust the list without touching Python.
 
-State: a per-session JSON file under ~/.claude/.memory-guard/ tracks which
-watched paths have already been flagged this session, so the PostToolUse
-hook doesn't re-prompt on every single edit to the same file. Guarded by
-flock since parallel tool calls in one turn can run concurrently.
+Session state: a per-session JSON file under ~/.claude/.memory-guard/ tracks
+which watched paths have already been flagged this session, so the
+PostToolUse hook doesn't re-prompt on every single edit to the same file.
+Guarded by flock since parallel tool calls in one turn can run concurrently.
+
+Project preference: a separate, session-independent file under
+~/.claude/.memory-guard/project-prefs/ records the "remove" or "stash"
+choice for a given repo the first (and only) time it's asked, so later
+sessions never ask again for that project. Deliberately stored outside the
+repo (never under its .claude/) so writing it can't itself trigger a watched-
+path flag.
 """
 
 import fcntl
+import hashlib
 import json
 import os
 import random
@@ -22,6 +30,7 @@ import time
 from pathlib import Path
 
 STATE_DIR = Path.home() / ".claude" / ".memory-guard"
+PROJECT_PREFS_DIR = STATE_DIR / "project-prefs"
 
 DEFAULT_WATCHED_DIRS = [".claude", "docs/ticket-tracking"]
 DEFAULT_WATCHED_FILES = ["CLAUDE.md"]
@@ -183,6 +192,48 @@ def reset_path(session_id: str, rel_path: str) -> None:
         return state, None
 
     with_locked_state(session_id, _update)
+
+
+# --- Project preference (remove vs stash, asked once per project ever) --
+
+def _project_key(repo_root: str) -> str:
+    return hashlib.sha256(os.path.realpath(repo_root).encode()).hexdigest()[:16]
+
+
+def project_pref_path(repo_root: str) -> Path:
+    return PROJECT_PREFS_DIR / f"{_project_key(repo_root)}.json"
+
+
+def read_project_preference(repo_root: str) -> "str | None":
+    """Returns 'remove', 'stash', or None if no preference has been set yet
+    for this repo."""
+    path = project_pref_path(repo_root)
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    action = data.get("action")
+    return action if action in ("remove", "stash") else None
+
+
+def write_project_preference(repo_root: str, action: str) -> None:
+    if action not in ("remove", "stash"):
+        raise ValueError(f"action must be 'remove' or 'stash', got {action!r}")
+    PROJECT_PREFS_DIR.mkdir(parents=True, exist_ok=True)
+    path = project_pref_path(repo_root)
+    path.write_text(json.dumps({
+        "repo_root": os.path.realpath(repo_root),
+        "action": action,
+        "set_at": time.time(),
+    }))
+
+
+def reset_project_preference(repo_root: str) -> None:
+    path = project_pref_path(repo_root)
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        pass
 
 
 def maybe_gc_old_sessions() -> None:
