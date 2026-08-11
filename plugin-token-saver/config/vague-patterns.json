@@ -1,0 +1,30 @@
+{
+  "patterns": [
+    "fix the bug",
+    "fix the error",
+    "make it better",
+    "handle the error",
+    "just do it",
+    "figure it out",
+    "optimize this",
+    "clean this up",
+    "update this",
+    "add the thing",
+    "make it work",
+    "solve this",
+    "handle this",
+    "do the thing",
+    "fix this",
+    "improve this",
+    "refactor this"
+  ],
+  "whitelisted_prefixes": [
+    "fix ",
+    "add ",
+    "create ",
+    "update ",
+    "remove ",
+    "change ",
+    "refactor "
+  ]
+}

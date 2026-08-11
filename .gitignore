@@ -20,6 +20,9 @@ Thumbs.db
 .claude/
 !.claude/settings.json
 
+# opencode
+.omo/
+
 # Python
 __pycache__/
 *.pyc
