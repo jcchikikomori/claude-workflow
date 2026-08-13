@@ -1,6 +1,6 @@
 {
   "name": "gh-issue-to-pr",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Drives a single GitHub issue end-to-end to a merged PR — investigate, plan, branch, implement, test, and (with explicit confirmation at each hard-to-reverse step) commit, open PR, review, merge, and close",
   "author": {
     "name": "John Cyrill Corsanes",
@@ -12,5 +12,8 @@
   "keywords": ["github", "issue", "pull-request", "git-flow", "workflow", "automation"],
   "agents": [
     "./agents/gh-issue-to-pr.md"
+  ],
+  "skills": [
+    "./skills/gh-issue-to-pr"
   ]
 }

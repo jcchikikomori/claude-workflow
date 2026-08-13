@@ -336,6 +336,8 @@ claude-workflow/
 ├── plugin-gh-issue-to-pr/        # gh-issue-to-pr plugin — GitHub issue-to-merged-PR agent
 │   ├── agents/
 │   │   └── gh-issue-to-pr.md
+│   ├── skills/
+│   │   └── gh-issue-to-pr/SKILL.md
 │   └── .claude-plugin/
 │       └── plugin.json
 │
@@ -459,8 +461,8 @@ defers to those conventions over its own defaults — it's portable across repos
 /plugin install gh-issue-to-pr@claude-workflow
 ```
 
-Trigger with "pick up issue #42", "work ticket #17 end to end", or resume mid-flow with
-"I've pushed, open the PR" / "checks are green, merge it".
+Trigger with `/gh-issue-to-pr #42`, or natural language: "pick up issue #42", "work ticket #17
+end to end", or resume mid-flow with "I've pushed, open the PR" / "checks are green, merge it".
 
 ---
 

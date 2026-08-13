@@ -49,6 +49,15 @@ repos, not tied to this one.
 
 ## Usage
 
+Slash command:
+
+```text
+/gh-issue-to-pr #42
+/gh-issue-to-pr https://github.com/owner/repo/issues/9
+```
+
+Or natural language — both route to the same agent:
+
 ```text
 pick up issue #42
 work ticket #17 end to end
@@ -56,9 +65,16 @@ implement https://github.com/owner/repo/issues/9
 ```
 
 Mid-flow resumption works too — e.g. "I've pushed, open the PR" or "checks are green, merge
-it."
+it." (also via `/gh-issue-to-pr I've pushed, open the PR`).
 
 ## Changelog
+
+### 0.2.0
+
+Added a `/gh-issue-to-pr` slash command (`skills/gh-issue-to-pr/SKILL.md`) as an explicit entry
+point — previously the plugin was agent-only with no slash command, so typing `/gh-issue-to-pr`
+errored with "Unknown command". The skill routes straight to the existing agent; no change to
+the workflow itself.
 
 ### 0.1.0
 
